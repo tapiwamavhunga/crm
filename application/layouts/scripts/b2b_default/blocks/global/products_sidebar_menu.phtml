@@ -1,0 +1,47 @@
+<?php 
+$front_template = Zend_Registry::get('front_template'); 
+$translator = Zend_Registry::get('translator');
+
+echo $this->headScript()->setFile('application/layouts/scripts/'.$front_template['theme_folder'].'/vendor/scripts/js/accordion-nav.js');
+echo $this->headLink()->setStylesheet('application/layouts/scripts/'.$front_template['theme_folder'].'/css/accordionmenu.css');
+
+?>
+
+<nav>
+  <ul id="nav">
+    <li><a href="#" class="first">Featured Products (100)</a>
+      <ul>
+        <li><a href=""><img src="application/layouts/scripts/<?php echo $front_template['theme_folder']; ?>/images/test/i-phone.jpg" border="0" /> Cartoons</a></li>
+        <li><a href=""><img src="application/layouts/scripts/<?php echo $front_template['theme_folder']; ?>/images/test/i-phone.jpg" border="0" /> Comic Strips</a></li>
+        <li><a href=""><img src="application/layouts/scripts/<?php echo $front_template['theme_folder']; ?>/images/test/i-phone.jpg" border="0" /> Video Clips</a></li>
+        <li><a href=""><img src="application/layouts/scripts/<?php echo $front_template['theme_folder']; ?>/images/test/i-phone.jpg" border="0" /> Web GIFs</a></li>
+      </ul>
+    </li>
+    <li><a href="#">Recent Products</a>
+      <ul>
+        <li><a href="">Adobe Photoshop</a></li>
+        <li><a href="">Branding &amp; Logos</a></li>
+        <li><a href="">Digital Marketing</a></li>
+        <li><a href="">Illustrations</a></li>
+        <li><a href="">Infographics</a></li>
+        <li><a href="">Product Design</a></li>
+      </ul>
+    </li>
+    <li><a href="#">Popular Products</a>
+      <ul>
+        <li><a href="">Cityscapes</a></li>
+        <li><a href="">Oceans</a></li>
+        <li><a href="">Wide-Angle Lens</a></li>
+        <li><a href="">Wildlife</a></li>
+      </ul>
+    </li>
+    <li><a href="#">See Also</a>
+      <ul>
+        <li><a href="">Branding</a></li>
+        <li><a href="">Business Cards</a></li>
+        <li><a href="">Letterpress</a></li>
+        <li><a href="">Poster Art</a></li>
+      </ul>
+    </li>
+  </ul>
+</nav>

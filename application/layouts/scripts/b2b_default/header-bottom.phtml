@@ -1,0 +1,39 @@
+<?php 
+$front_template = Zend_Registry::get('front_template'); 
+$this->translator = Zend_Registry::get('translator');
+$product_db = new B2b_Model_DbTable_Products();
+$tableColumns = array(
+                'b2b_products' => array( 'product_num' =>  'COUNT(pro.id)', 'user_num' =>  'COUNT(DISTINCT pro.user_id)'),
+				'userChecking' => false
+				);
+$product_info = $product_db->getListInfo('1', null, $tableColumns);
+if($product_info)
+{
+	$product_info = (is_array($product_info)) ? $product_info->toArray() : $product_info;
+	if($product_info[0])
+	{
+		$product_num	=	$this->numbers(number_format($product_info[0]['product_num']));
+		$user_num	=	$this->numbers(number_format($product_info[0]['user_num']));
+	}
+}
+?>
+
+<!-- Top Navigation Start-->
+<nav class="top-nav">
+	<div class="container">
+    	<div class="top-part">
+    		<?php echo $this->partial('blocks/global/menu_header.phtml'); ?>
+		</div>
+        
+        <div class="bottom-part">
+        	<span><?php echo $this->translator->translator('block_header_product_count', $product_num, '', $front_template['theme_folder']). ' '. $this->translator->translator('block_header_user_count', $user_num, '', $front_template['theme_folder']); ?></span>
+            <div class="post-leads"><a href="Want-To-Buy"><?php echo $this->translator->translator('front_post_leads','', '', $front_template['theme_folder']); ?></a></div>
+        	<div class="post-leads"><a href="Trade-Leads"><?php echo $this->translator->translator('front_trad_leads_btn','', '', $front_template['theme_folder']); ?></a></div>
+    	</div>
+    </div>
+</nav>
+<!-- Top Navigation End-->
+
+<!-- Search Bar Start-->
+<?php echo $this->partial('blocks/global/top_search.phtml'); ?>
+<!-- Search Bar End -->

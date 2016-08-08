@@ -1,0 +1,67 @@
+<?php 
+$front_template = Zend_Registry::get('front_template'); 
+$translator = Zend_Registry::get('translator');
+?>
+
+<div class="block block-list">
+	<div class="block-heading">
+    	<div class="symbol"><?php echo $translator->translator('menu_members_selling_title'); ?></div>
+	</div>
+    <div class="block-body">
+    	<ul>        	
+            <li><a href="New-Selling-Offers"><?php echo $translator->translator ('menu_members_selling_add'); ?> </a></li>
+            <li><a href="Selling-Offers"><?php echo $translator->translator ('menu_members_selling_manage'); ?> </a></li>
+            <li><a href="Draft-Selling-Offers/1"><?php echo $translator->translator ('menu_members_pending_sell_offers'); ?> </a></li>
+            <li class="last-child"><a href="InActive-Selling-Offers/1"><?php echo $translator->translator ('menu_members_inactive_sell_offers'); ?> </a></li> 
+		</ul>
+    </div>
+</div>
+
+<div class="block block-list">
+	<div class="block-heading">
+    	<div class="symbol"><?php echo $translator->translator('menu_members_buying_title'); ?></div>
+	</div>
+    <div class="block-body">
+    	<ul>
+            <li><a href="New-Buying-Offers"><?php echo $translator->translator ('menu_members_buying_add'); ?> </a></li>
+            <li><a href="Buying-Offers"><?php echo $translator->translator ('menu_members_buying_manage'); ?> </a></li>
+            <li><a href="Draft-Buying-Offers/1"><?php echo $translator->translator ('menu_members_pending_buy_offers'); ?> </a></li>
+            <li class="last-child"><a href="InActive-Buying-Offers/1"><?php echo $translator->translator ('menu_members_inactive_buy_offers'); ?> </a></li>
+		</ul>
+    </div>
+</div>
+
+<div class="block block-list">
+	<div class="block-heading">
+    	<div class="symbol"><?php echo $translator->translator('menu_members_product_management'); ?></div>
+	</div>
+    <div class="block-body">
+    	<ul>        	
+            <li><a href="Add-Product-Group"><?php echo $translator->translator ('menu_members_add_product_groups'); ?> </a></li>
+            <li><a href="My-Product-Groups"><?php echo $translator->translator ('menu_members_manage_product_groups'); ?> </a></li>
+            <li><a href="Add-Product"><?php echo $translator->translator ('menu_members_add_product'); ?> </a></li>
+            <li><a href="My-Products"><?php echo $translator->translator ('menu_members_manage_product'); ?> </a></li>
+            <li><a href="Draft-Products/1"><?php echo $translator->translator ('menu_members_pending_products'); ?> </a></li>
+			<li class="last-child"><a href="InActive-Products/1"><?php echo $translator->translator ('menu_members_inactive_products'); ?> </a></li>
+		</ul>
+    </div>
+</div>
+
+<div class="block block-list">
+	<div class="block-heading">
+    	<div class="symbol"><?php echo $translator->translator('menu_members_manage_store'); ?></div>
+	</div>
+    <div class="block-body">
+    	<ul> 
+            <li><a href="#"><?php echo $translator->translator ('menu_members_trade_alert'); ?> </a></li>
+            <li><a href="#"><?php echo $translator->translator ('menu_members_my_news'); ?> </a></li>
+            <li><a href="#"><?php echo $translator->translator ('menu_members_change_password'); ?> </a></li>
+            <li><a href="#"><?php echo $translator->translator ('menu_members_trade_alert'); ?> </a></li>
+            <li><a href="#"><?php echo $translator->translator ('menu_members_my_favorites'); ?> </a></li>
+            <li><a href="#"><?php echo $translator->translator ('menu_members_package_facilities'); ?> </a></li>
+            <li><a href="#"><?php echo $translator->translator ('menu_members_feedbacks'); ?> </a></li>
+            <li><a href="#"><?php echo $translator->translator ('menu_members_trade_shows'); ?> </a></li>
+			<li class="last-child"><a href="#"><?php echo $translator->translator ('menu_members_manage_homepage'); ?> </a></li>
+		</ul>
+    </div>
+</div>

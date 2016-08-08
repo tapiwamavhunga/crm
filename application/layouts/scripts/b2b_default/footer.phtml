@@ -1,0 +1,75 @@
+<?php 
+$front_template = Zend_Registry::get('front_template'); 
+$this->translator = Zend_Registry::get('translator');
+$global_conf = Zend_Registry::get('global_conf');
+$license = new Zend_Session_Namespace('License'); 
+$validation_data = $license->license_data;
+?>
+
+<footer id="footer">
+	<div class="container">
+        <div class="col">
+            <span><?php echo $this->translator->translator('block_footerlink_title1', $global_conf['site_name'], '', $front_template['theme_folder']); ?></span>
+            <ul>
+                <li><a href="#"><?php echo $this->translator->translator('front_footer_home','', '', $front_template['theme_folder']); ?></a></li>
+                <li><a href="About-Our-Company"><?php echo $this->translator->translator('front_footer_about_us','', '', $front_template['theme_folder']); ?></a></li>
+                <li><a href="SellLeads"><?php echo $this->translator->translator('front_footer_selling_leads','', '', $front_template['theme_folder']); ?></a></li>
+                <li><a href="BuyLeads"><?php echo $this->translator->translator('front_footer_buying_leads','', '', $front_template['theme_folder']); ?></a></li>
+                <li><a href="Products"><?php echo $this->translator->translator('front_footer_all_products','', '', $front_template['theme_folder']); ?></a></li>
+                <li><a href="Companies"><?php echo $this->translator->translator('front_footer_companies','', '', $front_template['theme_folder']); ?></a></li>
+            </ul>
+        </div>
+        
+        <div class="col">
+            <span><?php echo $this->translator->translator('block_footerlink_title2', $global_conf['site_name'], '', $front_template['theme_folder']); ?></span>
+            <ul>
+            	<li><a href="Classifieds"><?php echo $this->translator->translator('front_footer_classifieds','', '', $front_template['theme_folder']); ?></a></li>
+                <li><a href="BizDirectory"><?php echo $this->translator->translator('front_footer_biz_directory','', '', $front_template['theme_folder']); ?></a></li>
+                <li><a href="Suppliers"><?php echo $this->translator->translator('front_footer_suppliers','', '', $front_template['theme_folder']); ?></a></li>
+                <li><a href="Buyers"><?php echo $this->translator->translator('front_footer_buyers','', '', $front_template['theme_folder']); ?></a></li>
+                <li><a href="Trade-Shows"><?php echo $this->translator->translator('front_footer_trade_shows','', '', $front_template['theme_folder']); ?></a></li>
+                <li><a href="Success-Stories"><?php echo $this->translator->translator('front_footer_success_stories','', '', $front_template['theme_folder']); ?></a></li>
+            </ul>
+        </div>
+        
+        <div class="col">
+            <span><?php echo $this->translator->translator('block_footerlink_title3','', '', $front_template['theme_folder']); ?></span>
+            <ul>
+                <li><a href="Members-Dashboard"><?php echo $this->translator->translator('front_footer_my_account','', '', $front_template['theme_folder']); ?></a></li>
+                <li><a href="Premium-Membership"><?php echo $this->translator->translator('front_footer_premium_membership','', '', $front_template['theme_folder']); ?></a></li>
+                <li><a href="Trade-Guidelines"><?php echo $this->translator->translator('front_footer_buyers_sellers_guide','', '', $front_template['theme_folder']); ?></a></li>
+                <li><a href="Privacy-Statement"><?php echo $this->translator->translator('front_footer_private_policy','', '', $front_template['theme_folder']); ?></a></li>
+                <li><a href="FAQ"><?php echo $this->translator->translator('front_footer_faq','', '', $front_template['theme_folder']); ?></a></li>
+                <li><a href="Site-Map"><?php echo $this->translator->translator('front_footer_sitemap','', '', $front_template['theme_folder']); ?></a></li>
+            </ul>
+        </div>
+        
+        <div class="col last">    
+            <span><?php echo $this->translator->translator('front_footer_social','', '', $front_template['theme_folder']); ?></span>
+            <div class="social">
+                <a href="http://www.facebook.com" target="_blank"><img src="application/layouts/scripts/<?php echo $front_template['theme_folder']; ?>/images/facebook.png" width="41" height="41" border="0" title="Facebook"></a>
+                <a href="http://www.twitter.com" target="_blank"><img src="application/layouts/scripts/<?php echo $front_template['theme_folder']; ?>/images/twitter.png" width="41" height="41" border="0" title="Twitter"></a>
+                <a href="https://plus.google.com" target="_blank"><img src="application/layouts/scripts/<?php echo $front_template['theme_folder']; ?>/images/google-plus.png" width="41" height="41" border="0" title="Google Plus"></a>
+                <a href="http://flickr.com" target="_blank"><img src="application/layouts/scripts/<?php echo $front_template['theme_folder']; ?>/images/rss.png" width="41" height="41" border="0" title="Flickr"></a>
+                <a href="http://www.youtube.com" target="_blank"><img src="application/layouts/scripts/<?php echo $front_template['theme_folder']; ?>/images/youtube.png" width="41" height="41" border="0" title="You Tube"></a>
+            </div>
+        </div>
+        
+        <div class="index">
+            <span><?php echo $this->translator->translator('block_footerlink_title3','', '', $front_template['theme_folder']); ?></span>
+            <?php for ($i = 'A'; $i != 'AA'; $i++){ ?>
+            <a href="<?php echo $this->url( array('module' => 'B2b','controller' => 'frontend', 'action'  => 'companylist', 'company_name' => $i ), 'All-Company-List/*',    true); ?>"><?php echo $i; ?></a> <?php if($i != 'Z'){ ?>|<?php } ?>
+            <?php } ?>            
+        </div>
+    </div>
+    
+	<div class="copyright">
+		<?php echo $this->translator->translator('front_footer_copy','', '', $front_template['theme_folder']); ?> <?php echo date("Y"); ?> <?php echo $this->translator->translator('front_footer_company', $global_conf['site_name'], '', $front_template['theme_folder']); ?> <?php echo $this->translator->translator('front_footer_rights','', '', $front_template['theme_folder']); ?> &nbsp;<a href="http://www.<?php if(!empty($global_conf['frontend_footer_url'])){ echo $global_conf['frontend_footer_url']; }else if(!empty($validation_data['vendor_domain'])){  echo $validation_data['vendor_domain']; }else{ echo 'eicra.com'; } ?>" target="_blank" title="<?php if(!empty($global_conf['frontend_footer'])){ echo $global_conf['frontend_footer']; }else if($validation_data['footer_name']){ echo $validation_data['footer_name']; }else{ echo 'Eicra Soft Ltd'; } ?>"><?php echo $this->translator->translator('front_footer_powered','', '', $front_template['theme_folder']); ?></a>
+                          
+		<?php if(!empty($global_conf['frontend_footer'])){ echo $global_conf['frontend_footer']; }else if($validation_data['footer_name']){ echo $validation_data['footer_name']; }else{ echo 'Eicra Soft Ltd'; } ?>
+                                  
+		<?php echo $this->translator->translator('front_footer_version','', '', $front_template['theme_folder']); ?> <?php echo Eicra_License_Version::getVersion(); ?>
+        
+		<p class="disclaimer"><?php echo $this->translator->translator('front_footer_disclaimer', $global_conf['site_name'], '', $front_template['theme_folder']); ?></p>
+	</div>
+</footer>

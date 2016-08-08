@@ -1,0 +1,117 @@
+<?php 
+class sidebar_successStory
+{
+	protected	$_front_template;
+	protected	$_view;
+	protected	$_group_id = 1;
+	protected	$_limit = 4;
+	protected	$_order = 'added_on';
+	protected	$_dir = 'DESC';	
+	protected	$_translator;
+	protected	$_success_story_db;
+	protected	$_currency;
+	protected	$_preferences_db;
+	protected	$_preferences;
+	
+	
+	public function __construct($view) 
+	{
+		$this->_front_template = Zend_Registry::get('front_template'); 
+		$this->_view =	$view;	
+		$this->_translator = Zend_Registry::get('translator');	
+		$this->_success_story_db = new B2b_Model_DbTable_SuccessStories();	
+		$this->_preferences_db = new B2b_Model_DbTable_Preferences();
+		$this->_preferences	=	$this->_preferences_db->getOptions();
+		$this->_limit = ($this->_preferences && !empty($this->_preferences['story_on_home'])) ? $this->_preferences['story_on_home'] : $this->_limit;	
+	}
+	
+	public function truncate($phrase,$start_words, $max_words, $char = false, $charset = null)
+	{
+		if($char)
+		{
+			if(mb_strlen($phrase, $charset) > $length) {
+				  $dot = (strlen($phrase) > ($max_words - $start_words)) ? '...' : '';
+				  $phrase = mb_substr($phrase, $start_words, $max_words, $charset) . $dot;
+				}
+		}
+		else
+		{
+		   $phrase_array = explode(' ',$phrase);
+		   if(count($phrase_array) > $max_words && $max_words > 0)
+			  $phrase = implode(' ',array_slice($phrase_array, $start_words, $max_words)).'...';  
+		}
+	   return $phrase;
+	}
+	
+	public function class_body()
+	{
+		$search_params['filter']['logic'] = ($search_params['filter']['logic']) ? $search_params['filter']['logic'] : 'and';
+		$search_params['filter']['filters'][0] = array('field' => 'status', 'operator' => 'eq', 'value' => '1');
+		$search_params['filter']['filters'][1] = array('field' => 'cpy_active', 'operator' => 'eq', 'value' => '1');
+		$search_params['filter']['filters'][2] = array('field' => 'displayable', 'operator' => 'eq', 'value' => '1');
+		
+		$search_params['sort'][0]	=	 array('field' => $this->_order, 'dir' => $this->_dir);	
+							
+		$tableColumns =  array(
+										'b2b_success_stories' 	=> 	array('sst.*'),
+										'user_profile'			=>	array( 'username' => 'usr.username', 'firstName' => 'usr.firstName', 'lastName' => 'usr.lastName', 'title' => 'usr.title', 'full_name' => "CONCAT(usr.title, ' ', usr.firstName, ' ', usr.lastName)" ), 
+										'b2b_company_profile'	=>	array(
+												'company_name' => 'cpy.company_name',
+												'establishing_year' => 'cpy.establishing_year',
+												'keywords' => 'cpy.keywords',
+												'main_products' => 'cpy.main_products',
+												'company_title' => 'cpy.seo_title',
+												'trade_type' => 'cpy.trade_type',
+												'cpy_active' => 'cpy.active'
+											),
+										'countries'			=>	array(
+            'country_name' => 'tld.value',
+            'country_code' => 'tld.code'
+        ),
+										'userChecking' 			=> 	false,
+										'dataLimit' 			=> $this->_limit
+									);
+						
+		$story_info = $this->_success_story_db->getListInfo ('1', $search_params, $tableColumns);						
+		if($story_info)
+		{					
+?>
+		<div class="block block-success-story">
+            <div class="block-heading">
+                <div class="symbol"><?php echo $this->_translator->translator('block_success_story_title','','', $this->_front_template['theme_folder']); ?></div>
+            </div>
+            <div class="block-body">
+            	<?php
+				foreach($story_info as $story_info_key => $info)
+				{
+				?>
+                    <?php if($info['b2b_images']){ ?><a href="Story-Details/<?php echo $this->_view->escape($info['seo_title']); ?>" title="<?php echo $this->_view->escape($info['name']); ?>" link="<?php echo $info['images_path'].'/'.$info['b2b_images']; ?>"><img src="<?php echo $info['images_path'].'/'.$info['b2b_images']; ?>" width="50" border="0" class="thumb"/></a><?php } ?>
+                    <div class="block-title"><a href="Company-Homepage/<?php echo $this->_view->escape($info['company_title']); ?>"  title="<?php echo $this->_view->escape($info['name']); ?>"><?php echo $this->_view->escape($info['company_name']); ?></a></div>
+                    <?php echo $this->_view->escape($info['full_name']); ?> <br />
+                    <img src="data/adminImages/flagsImage/<?php echo $this->_view->escape($info['country_code']).'.gif'; ?>"border="0" style="float:left;"/>&nbsp;&nbsp;[<?php echo $this->_view->escape($info['country_name']); ?>]
+                    <br />
+                    <div class="callout">
+                        <a href="Story-Details/<?php echo $this->_view->escape($info['seo_title']); ?>"><?php echo $this->truncate($this->_view->escape(strip_tags($info['description'])), 0, 20); ?></a>
+                        <b class="notch"></b>
+                    </div><br />
+                <?php
+				}
+				?>  
+                <a href="My-Success-Story" class="post-story"><?php echo $this->_translator->translator('block_post_story_title','','', $this->_front_template['theme_folder']); ?></a>
+                <a href="Success-Stories" class="more-story"><?php echo $this->_translator->translator('block_more_story_title','','', $this->_front_template['theme_folder']); ?></a>
+            </div>
+        </div>
+<?php
+		}
+	}
+}
+try
+{
+	$sidebar_successStory_class = new sidebar_successStory($this);
+	$sidebar_successStory_class->class_body();
+}
+catch(Exception $e)
+{
+	echo $e->getMessage();
+}
+?>

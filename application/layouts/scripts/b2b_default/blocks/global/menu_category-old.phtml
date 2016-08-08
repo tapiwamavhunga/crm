@@ -1,0 +1,147 @@
+<?php 
+$front_template = Zend_Registry::get('front_template'); 
+$translator = Zend_Registry::get('translator');
+
+echo $this->headScript()->setFile('application/layouts/scripts/'.$front_template['theme_folder'].'/vendor/scripts/js/category-menu-1.js');
+echo $this->headScript()->setFile('application/layouts/scripts/'.$front_template['theme_folder'].'/vendor/scripts/js/category-menu-2.js');
+echo $this->headLink()->setStylesheet('application/layouts/scripts/'.$front_template['theme_folder'].'/css/category-menu.css');	
+?>
+
+<script>
+$(document).ready(function($){
+
+	$('#mega-1').dcVerticalMegaMenu({
+		rowItems: '3',
+		speed: 'fast',
+		effect: 'show',
+		direction: 'right'
+	});
+	$('#mega-2').dcVerticalMegaMenu({
+		rowItems: '3',
+		speed: 'slow',
+		effect: 'fade',
+		direction: 'left'
+	});
+	$('#mega-3').dcVerticalMegaMenu({
+		rowItems: '4',
+		speed: 'slow',
+		effect: 'slide',
+		direction: 'right'
+	});
+	$('#mega-4').dcVerticalMegaMenu({
+		rowItems: '3',
+		speed: 'fast',
+		effect: 'slide',
+		direction: 'left'
+	});
+
+});
+</script>
+
+<div class="block block-mega-menu">
+	<div class="block-heading">
+    	<div class="symbol"><?php echo $translator->translator('block_category_title','','', $front_template['theme_folder']); ?></div>
+	</div>
+    
+	<div class="block-body demo-container">
+        <ul id="mega-3" class="mega-menu right">
+            <li class="dc-mega-li"><a class="dc-mega" href="#">Automotive <span class="post-count">(1965)</span> <span class="dc-mega-icon"></span></a>
+                <div style="height: 220px; margin-top: -42px; z-index: 1000; width: 540px; display: none; left: 209px;" class="sub-container mega">
+                <ul class="sub">
+                <div style="width: 540px;" class="row last first">
+                <li class="mega-unit mega-hdr"><a style="height: 16px;" class="mega-hdr-a" href="#">Monitor <span class="post-count">(965)</span></a>
+                    <ul>
+                    <li><a href="#">LG <span class="post-count">(965)</span></a></li>
+                    <li><a href="#">Sansung <span class="post-count">(965)</span></a></li>
+                    <li><a href="#">Women's Clothing  <span class="post-count">(965)</span></a></li>
+                    <li><a href="#">Menu Link</a></li>
+                    <li><a href="#">Menu Link</a></li>
+                    <li class="all"><a href="#">More categories</a></li>
+                    </ul>
+                </li>
+                <li class="mega-unit mega-hdr"><a style="height: 16px;" class="mega-hdr-a" href="#">Printer <span class="post-count">(965)</span></a>
+                    <ul>
+                    <li><a href="#">Laser Printer <span class="post-count">(965)</span></a></li>
+                    <li><a href="#">Menu Link</a></li>
+                    <li><a href="#">Menu Link</a></li>
+                    <li><a href="#">Menu Link</a></li>
+                    <li><a href="#">Menu Link</a></li>
+                    <li class="all"><a href="#">More categories</a></li>
+                    </ul>
+                </li>
+                
+                <li class="mega-unit mega-hdr last"><a style="height: 16px;" class="mega-hdr-a" href="#">Hard Disk <span class="post-count">(965)</span></a>
+                    <ul>
+                    <li><a href="#">Kingstone <span class="post-count">(965)</span></a></li>
+                    <li><a href="#">Scagi <span class="post-count">(965)</span></a></li>
+                    <li><a href="#">Menu Link</a></li>
+                    <li><a href="#">Menu Link</a></li>
+                    <li><a href="#">Menu Link</a></li>
+                    <li class="all"><a href="#">More categories</a></li>
+                    </ul>
+                </li>
+                </div>
+                <hr />
+                <a href=""><strong>See all Categories of (Computers & Networking)</strong></a>
+                </ul>
+                </div>
+            </li>
+            
+            <li class="dc-mega-li"><a class="dc-mega" href="#">Computers & Networking <span class="post-count">(965)</span> <span class="dc-mega-icon"></span></a>
+                <div style="height: 220px; margin-top: -42px; z-index: 1000; width: 540px; display: none; left: 209px;" class="sub-container mega">
+                <ul class="sub">
+                <div style="width: 540px;" class="row last first">
+                <li class="mega-unit mega-hdr"><a style="height: 16px;" class="mega-hdr-a" href="#">Monitor <span class="post-count">(965)</span></a>
+                    <ul>
+                    <li><a href="#">LG <span class="post-count">(965)</span></a></li>
+                    <li><a href="#">Sansung <span class="post-count">(965)</span></a></li>
+                    <li><a href="#">Women's Clothing  <span class="post-count">(965)</span></a></li>
+                    <li><a href="#">Menu Link</a></li>
+                    <li><a href="#">Menu Link</a></li>
+                    <li class="all"><a href="#">More categories</a></li>
+                    </ul>
+                </li>
+                <li class="mega-unit mega-hdr"><a style="height: 16px;" class="mega-hdr-a" href="#">Printer <span class="post-count">(965)</span></a>
+                    <ul>
+                    <li><a href="#">Laser Printer <span class="post-count">(965)</span></a></li>
+                    <li><a href="#">Menu Link</a></li>
+                    <li><a href="#">Menu Link</a></li>
+                    <li><a href="#">Menu Link</a></li>
+                    <li><a href="#">Menu Link</a></li>
+                    <li class="all"><a href="#">More categories</a></li>
+                    </ul>
+                </li>
+                
+                <li class="mega-unit mega-hdr last"><a style="height: 16px;" class="mega-hdr-a" href="#">Hard Disk <span class="post-count">(965)</span></a>
+                    <ul>
+                    <li><a href="#">Kingstone <span class="post-count">(965)</span></a></li>
+                    <li><a href="#">Scagi <span class="post-count">(965)</span></a></li>
+                    <li><a href="#">Menu Link</a></li>
+                    <li><a href="#">Menu Link</a></li>
+                    <li><a href="#">Menu Link</a></li>
+                    <li class="all"><a href="#">More categories</a></li>
+                    </ul>
+                </li>
+                </div>
+                <hr />
+                <a href=""><strong>See all Categories of (Computers & Networking)</strong></a>
+                </ul>
+                </div>
+            </li>
+            <li><a class="dc-mega" href="#">Consumer Electronics <span class="post-count">(14050)</span></a></li>
+    		<li><a class="dc-mega" href="#">Phones & Accessories</span></a></li>
+            <li class="dc-mega-li"><a class="dc-mega" href="#">Apparel & Accessories <span class="post-count">(14050)</span></a></li>
+            <li class="dc-mega-li"><a class="dc-mega" href="#">Jewelry & Watches</a></li>
+            <li class="dc-mega-li"><a class="dc-mega" href="#">Luggage & Bags</a></li>
+            <li class="dc-mega-li"><a class="dc-mega" href="#">Home Appliances <span class="post-count">(14050)</span></a></li>
+            <li class="dc-mega-li"><a class="dc-mega" href="#">Shoes</span></a></li>
+            
+            <li class="dc-mega-li"><a class="dc-mega" href="#">Beauty & Health</a></li>
+            <li class="dc-mega-li"><a class="dc-mega" href="#">Home & Garden</span></a></li>
+            <li class="dc-mega-li"><a class="dc-mega" href="#">Sports & Entertainment <span class="post-count">(14050)</span></a></li>
+            <li class="dc-mega-li"><a class="dc-mega" href="#">Toys, Kids & Baby</a></li>
+            <li class="dc-mega-li"><a class="dc-mega" href="#">All Categories</a></li>
+		</ul>
+	</div>
+</div>
+<div class="clear"></div>

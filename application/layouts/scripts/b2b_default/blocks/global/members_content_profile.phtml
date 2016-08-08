@@ -1,0 +1,179 @@
+<?php
+class members_content_profile
+{
+	protected	$_front_template;
+	protected	$_view;
+	protected	$_group_id = 1;
+	protected	$_limit = 12;
+	protected	$_order = 'added_on';
+	protected	$_dir = 'DESC';		
+	protected	$_translator;
+	protected	$_company_profile_db;
+	protected	$_currency;
+	protected	$_preferences_db;
+	protected	$_preferences;
+	
+	public function __construct($view) 
+	{
+		$this->_front_template = Zend_Registry::get('front_template'); 
+		$this->_view =	$view;	
+		$this->_translator = Zend_Registry::get('translator');	
+		$this->_company_profile_db = new B2b_Model_DbTable_CompanyProfile();	
+		$this->_preferences_db = new B2b_Model_DbTable_Preferences();
+		$this->_preferences	=	$this->_preferences_db->getOptions();
+		$this->_limit = ($this->_preferences && !empty($this->_preferences['suppliers_on_home'])) ? $this->_preferences['suppliers_on_home'] : $this->_limit;
+		if($this->_preferences && !empty($this->_preferences['suppliers_home_sortby']))
+		{
+			$suppliers_home_sortby_arr = explode('-', $this->_preferences['suppliers_home_sortby']);
+			$this->_order = (!empty($suppliers_home_sortby_arr[0]) && $suppliers_home_sortby_arr[0] != '_') ? $suppliers_home_sortby_arr[0] : $this->_order;
+			$this->_dir = (!empty($suppliers_home_sortby_arr[1]) && $suppliers_home_sortby_arr[1] != '_') ? $suppliers_home_sortby_arr[1] : $this->_dir;
+		}
+	}
+	
+	public function truncate($phrase,$start_words, $max_words, $char = false, $charset = null)
+	{
+		if($char)
+		{
+			if(mb_strlen($phrase, $charset) > $length) {
+				  $dot = (strlen($phrase) > ($max_words - $start_words)) ? '...' : '';
+				  $phrase = mb_substr($phrase, $start_words, $max_words, $charset) . $dot;
+				}
+		}
+		else
+		{
+		   $phrase_array = explode(' ',$phrase);
+		   if(count($phrase_array) > $max_words && $max_words > 0)
+			  $phrase = implode(' ',array_slice($phrase_array, $start_words, $max_words)).'...';  
+		}
+	   return $phrase;
+	}
+	
+	public function class_body()
+	{
+		$search_params['filter']['logic'] = ($search_params['filter']['logic']) ? $search_params['filter']['logic'] : 'and';
+		//$search_params['filter']['filters'][0] = array('field' => 'displayble', 'operator' => 'eq', 'value' => '1');
+		$search_params['filter']['filters'][1] = array('field' => 'active', 'operator' => 'eq', 'value' => '1');
+		$search_params['filter']['filters'][2] = array('field' => 'status', 'operator' => 'eq', 'value' => '1');
+		$search_params['filter']['filters'][3] = array('field' => 'spotlight', 'operator' => 'eq', 'value' => 'YES');
+		
+		$search_params['sort'][0]	=	array('field' => $this->_order, 'dir' => $this->_dir);
+		
+		$sql_class	=	new B2b_Controller_Helper_CompanySql();
+		$tableColumns = $sql_class->getB2bPremiumCompanyProfileList (array('dataLimit' => $this->_limit));
+		$company_profile_info = $this->_company_profile_db->getListInfo ('1', $search_params, $tableColumns);	
+		if($company_profile_info)
+		{			
+?>		
+        <script>
+		function goto(id, t){	
+			//animate to the div id.
+			$(".contentbox-wrapper").animate({"left": -($(id).position().left)}, 600);
+			
+			// remove "active" class from all links inside #nav
+			$('#nav a').removeClass('active');
+			
+			// add active class to the current link
+			$(t).addClass('active');	
+		}
+		</script>
+		
+		<div class="block block-supplier">
+			<div class="block-heading silver">
+				<div class="symbol"><?php echo $this->_translator->translator('block_suppliers_title','','', $this->_front_template['theme_folder']); ?>
+					<div class="more">
+						<a href="All-Company-List"><?php echo $this->_translator->translator('block_suppliers_more','','', $this->_front_template['theme_folder']); ?></a> 
+					</div>
+					<div id="nav">
+						<ul style="margin:0; padding:0;">
+                        	<?php  
+								$company_profile_info_count = count($company_profile_info); $tab = ceil($company_profile_info_count/4) ;
+								for($tab_id = 1; $tab_id <= $tab; $tab_id++ )
+								{
+									$active_class = ($tab_id == 1) ? 'active' : '';
+							?>
+								<li><a class="<?php echo $active_class; ?>" href="#" onClick="goto('#<?php echo $tab_id; ?>', this); return false"><?php echo $this->_view->numbers($tab_id); ?></a></li>
+                            <?php
+								}
+							?>
+							<!--<li><a href="#" onClick="goto('#2', this); return false">2</a></li>
+							<li><a href="#" onClick="goto('#3', this); return false">3</a></li>-->
+						</ul>
+					</div>
+				</div>
+			</div>
+			
+			<div class="block-body">
+				<div id="content-roll">
+					<div class="contentbox-wrapper">
+                    	<?php
+							$div_id = 1;
+						?>
+						<div id="<?php echo $div_id; ?>" class="contentbox">
+                        	
+							
+                            	<?php
+								$col = 1;
+								foreach($company_profile_info as $company_profile_key => $info)
+								{
+									$profile_image_primary_format = ($this->_view->escape( $info['profile_image_primary'])) ? $info['images_path'] . '/' . $info['profile_image_primary'] : '';
+									$col_id = ($col % 2 == 0) ? '2' : '1';
+								?>
+                                <div class="col-<?php echo $col_id; ?>">
+                                    <p>
+                                    <a href="<?php echo $this->_view->url(array('module' => 'B2b', 'controller' => 'company', 'action' => 'home', 'company_title'  => $this->_view->escape($info['company_title'])), 'Company-Homepage/:company_title/*', true); ?>"><img src="<?php echo $profile_image_primary_format; ?>" title="<?php echo $this->_view->escape($info['company_name']); ?>" border="0" width="65" height="65" class="thumb"/></a>
+                                    <span class="block-title"><a href="<?php echo $this->_view->url(array('module' => 'B2b', 'controller' => 'company', 'action' => 'home', 'company_title'  => $this->_view->escape($info['company_title'])), 'Company-Homepage/:company_title/*', true); ?>"><?php echo $this->truncate($this->_view->escape($info['company_name']), 0, 25, true, 'UTF-8'); ?></a></span><br />
+                                    <?php echo $this->truncate($this->_view->escape($info['company_information']), 0, 100, true, 'UTF-8'); ?>
+                                    </p>								
+								<hr/>
+                                </div>
+                                <?php
+									
+									if($col % 4 == 0) { $div_id++; echo '</div><div id="'.$div_id.'" class="contentbox">';  }
+									$col++;									
+								}
+								?>                              
+							
+							
+							<!--<div class="col-2">
+								<p>
+								<a href="#"><img src="application/layouts/scripts/<?php echo $this->_front_template['theme_folder']; ?>/images/test/supplier.jpg" title="Company Name" border="0" width="65" height="65" class="thumb"/></a>
+								<span class="block-title"><a href="#">Sony Corporation</a></span><br />
+								Largest Electrical Industrial & Trading Equipment Supplier Limited is located in USA product over 1000 products...
+								</p>
+								
+								<hr/>
+								<p>
+								<a href="#"><img src="application/layouts/scripts/<?php echo $this->_front_template['theme_folder']; ?>/images/test/supplier.jpg" title="Company Name" border="0" width="65" height="65" class="thumb"/></a>
+								<span class="block-title"><a href="#">Sony Corporation</a></span><br />
+								Largest Electrical Industrial & Trading Equipment Supplier Limited is located in USA...
+								</p>
+							</div>-->
+						</div>
+						
+						<!--<div id="2" class="contentbox">
+						<h3>Work</h3>
+						<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed iaculis ornare nibh, vel condimentum risus blandit ut. Sed vel tortor ac ligula blandit interdum eu vel leo. In semper, nunc sit amet tincidunt volutpat, nisl elit tempor eros, at rutrum nisl enim a lorem. Ut quis tellus felis. Maecenas rhoncus accumsan odio quis faucibus. Aliquam erat tortor, vehicula eget facilisis eget, commodo et sapien. Suspendisse potenti. Praesent convallis urna non est mollis ultrices. Fusce fringilla lacinia sapien non eleifend. Morbi venenatis nulla id libero tempus et volutpat sem facilisis. Duis eu lacus sapien. Aliquam a lorem justo. Cras nec mi quam, vitae fermentum urna. </p>
+						</div>
+						
+						<div id="3" class="contentbox">
+						<h3>Contact</h3>
+						<p>Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed iaculis ornare nibh, vel condimentum risus blandit ut. Sed vel tortor ac ligula blandit interdum eu vel leo. In semper, nunc sit amet tincidunt volutpat, nisl elit tempor eros, at rutrum nisl enim a lorem. Ut quis tellus felis. Maecenas rhoncus accumsan odio quis faucibus. Aliquam erat tortor, vehicula eget facilisis eget, commodo et sapien. Suspendisse potenti. Praesent convallis urna non est mollis ultrices. Fusce fringilla lacinia sapien non eleifend. Morbi venenatis nulla id libero tempus et volutpat sem facilisis. Duis eu lacus sapien. Aliquam a lorem justo. Cras nec mi quam, vitae fermentum urna. </p>
+						</div>-->
+					</div>
+				</div>
+			</div>
+		</div>
+<?php			
+		}
+	}
+}
+try
+{
+	$members_content_profile_class = new members_content_profile($this);
+	$members_content_profile_class->class_body();
+}
+catch(Exception $e)
+{
+	echo $e->getMessage();
+}	
+?>

@@ -1,0 +1,25 @@
+<?php
+$front_template = Zend_Registry::get('front_template');
+echo $this->headLink()->appendStylesheet('application/layouts/scripts/'.$front_template['theme_folder'].'/css/menu.css');	
+$frontController = Zend_Controller_Front::getInstance();
+$company_title = $frontController->getRequest()->getParam('company_title');
+$helper_path = $this->getHelpers();
+$doc_view = $helper_path[Doctype]->view;
+$translator = Zend_Registry::get('translator');	
+ 
+?>
+<nav class="company-top-menu">
+    <ul class="dm-menu">
+    	<li><a href="<?php echo $this->serverUrl().$this->baseUrl(); ?>/Company-Homepage/<?php echo $company_title?>" class="noTitle"><?php echo $translator->translator('b2b_view_comopany_homepage', '', 'B2b'); ?></a></li>
+        <li><a href="<?php echo $this->serverUrl().$this->baseUrl(); ?>/Company-AboutUs/<?php echo $company_title?>" class="noTitle"><?php echo $translator->translator('b2b_view_comopany_profile', '', 'B2b'); ?></a></li>
+        <li><a href="<?php echo $this->serverUrl().$this->baseUrl(); ?>/Company-Store/<?php echo $company_title?>" class="noTitle"><?php echo $translator->translator('b2b_view_comopany_store_page', '', 'B2b'); ?></a></li>
+        <li><a href="<?php echo $this->serverUrl().$this->baseUrl(); ?>/Company-Products/<?php echo $company_title?>" class="noTitle"><?php echo $translator->translator('b2b_product_list', '', 'B2b'); ?></a></li>
+        <li><a href="<?php echo $this->serverUrl().$this->baseUrl(); ?>/Company-Selloffers/<?php echo $company_title?>" class="noTitle"><?php echo $translator->translator('b2b_selling_list', '', 'B2b'); ?></a></li>
+        <li><a href="<?php echo $this->serverUrl().$this->baseUrl(); ?>/Company-Buyoffers/<?php echo $company_title?>" class="noTitle"><?php echo $translator->translator('b2b_buying_list', '', 'B2b'); ?></a></li>
+        <?php if ($doc_view->preferences_data['show_inquiry_page']) {?>
+        <li><a href="<?php echo $this->serverUrl().$this->baseUrl(); ?>/Inquiry/<?php echo $company_title?>" class="noTitle"><?php echo $translator->translator('b2b_company_profile_send_inquiry', '', 'B2b'); ?></a></li>
+        <?php } if ($doc_view->preferences_data['show_contact_page']) {?>
+        <li><a href="<?php echo $this->serverUrl().$this->baseUrl(); ?>/Company-Contact/<?php echo $company_title?>" class="noTitle"><?php echo $translator->translator('b2b_company_profile_contact_us', '', 'B2b'); ?></a></li>
+        <?php }?>
+    </ul>
+</nav> 

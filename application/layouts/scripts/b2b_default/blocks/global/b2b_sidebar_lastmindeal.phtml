@@ -1,0 +1,163 @@
+<?php
+class b2b_sidebar_lastmindeal
+{
+	protected	$_front_template;
+	protected	$_view;
+	protected	$_group_id = 1;
+	protected	$_limit = 4;
+	protected	$_order = 'added_on';
+	protected	$_dir = 'DESC';		
+	protected	$_translator;
+	protected	$_selling_leads_db;
+	protected	$_currency;
+	protected	$_preferences_db;
+	protected	$_preferences;
+	protected	$_deal	=	10;
+	protected	$_deal_operator	=	'deal_day';
+	
+	public function __construct($view) 
+	{
+		$this->_front_template = Zend_Registry::get('front_template'); 
+		$this->_view =	$view;	
+		$this->_translator = Zend_Registry::get('translator');	
+		$this->_selling_leads_db = new B2b_Model_DbTable_Selling();	
+		//$global_conf = Zend_Registry::get('global_conf');
+		//$this->_currency = new Zend_Currency($global_conf['default_locale']);	
+		$this->_preferences_db = new B2b_Model_DbTable_Preferences();
+		$this->_preferences	=	$this->_preferences_db->getOptions();
+		$this->_limit = ($this->_preferences && !empty($this->_preferences['last_minute_on_home'])) ? $this->_preferences['last_minute_on_home'] : $this->_limit;
+		$this->_deal = ($this->_preferences && !empty($this->_preferences['last_minute_time_on_home'])) ? $this->_preferences['last_minute_time_on_home'] : $this->_deal;
+		$this->_deal_operator = ($this->_preferences && !empty($this->_preferences['last_minute_time_by']) && $this->_preferences['last_minute_time_by'] != '_') ? $this->_preferences['last_minute_time_by'] : $this->_deal_operator;
+		if($this->_preferences && !empty($this->_preferences['last_minute_sort_by']))
+		{
+			$last_minute_sort_by_arr = explode('-', $this->_preferences['last_minute_sort_by']);
+			$this->_order = (!empty($last_minute_sort_by_arr[0]) && $last_minute_sort_by_arr[0] != '_') ? (($last_minute_sort_by_arr[0] == 'deal') ? $this->_deal_operator.'_num' : $last_minute_sort_by_arr[0]) : $this->_order;
+			$this->_dir = (!empty($last_minute_sort_by_arr[1]) && $last_minute_sort_by_arr[1] != '_') ? $last_minute_sort_by_arr[1] : $this->_dir;
+		}
+	}
+	
+	public function truncate($phrase,$start_words, $max_words, $char = false, $charset = null)
+	{
+		if($char)
+		{
+			if(mb_strlen($phrase, $charset) > $length) {
+				  $dot = (strlen($phrase) > ($max_words - $start_words)) ? '...' : '';
+				  $phrase = mb_substr($phrase, $start_words, $max_words, $charset) . $dot;
+				}
+		}
+		else
+		{
+		   $phrase_array = explode(' ',$phrase);
+		   if(count($phrase_array) > $max_words && $max_words > 0)
+			  $phrase = implode(' ',array_slice($phrase_array, $start_words, $max_words)).'...';  
+		}
+	   return $phrase;
+	}
+	
+	public function class_body()
+	{
+		$search_params['filter']['filters'][0] = array('field' => 'group_id', 'operator' => 'eq', 'value' => $this->_group_id);
+        $search_params['filter']['logic'] = ($search_params['filter']['logic']) ? $search_params['filter']['logic'] : 'and';
+		$search_params['filter']['filters'][1] = array('field' => 'displayble', 'operator' => 'eq', 'value' => '1');
+		$search_params['filter']['filters'][2] = array('field' => 'status', 'operator' => 'eq', 'value' => '1');
+		$search_params['filter']['filters'][3] = array('field' => 'cpy_active', 'operator' => 'eq', 'value' => '1');
+		$search_params['filter']['filters'][4] = array('field' => 'validity', 'operator' => $this->_deal_operator, 'value' => $this->_deal);
+		
+		$search_params['sort'][0]	=	 array('field' => $this->_order, 'dir' => $this->_dir);
+		
+		$sql_class	=	new B2b_Controller_Helper_SellingSql();
+		$tableColumns = $sql_class->getB2bContentSellingLastMinDealList (array('dataLimit' => $this->_limit));
+		$selling_info = $this->_selling_leads_db->getListInfo ('1', $search_params, $tableColumns);	
+		if($selling_info)
+		{
+			$global_conf = Zend_Registry::get('global_conf');
+			$currency_converter_helper = new Paymentgateway_Controller_Helper_Currency($global_conf);	
+?>		
+        <div class="block block-super-deal">
+            <div class="block-heading"><div class="symbol"><?php echo $this->_translator->translator('block_selling_lastmindeal_title','','', $this->_front_template['theme_folder']); ?></div></div>
+            <div class="block-body">
+            	<?php
+			  	$c = 1;
+				foreach($selling_info as $selling_key => $info)
+				{
+					$info = (!is_array($info)) ? $info->toArray() : $info;	
+					$currency_arr 	= ($info['price_currency']) ? explode('-', $info['price_currency']) : array();
+					$currency_symbol 		= (!empty($currency_arr[0])) ? trim($currency_arr[0]) : '';				
+					$img_thumb_arr = explode(',', $info['others_images']);
+					$primary_file_field_format = ($this->_view->escape(
+										
+										$info['primary_file_field'])) ? $info['images_path'] .
+
+									 '/' .
+
+									 $this->_view->escape(
+
+											$info['primary_file_field']) : $info['images_path'] .
+
+									 '/' . $img_thumb_arr[0];	
+					$even_class		=	 ($c % 2 == 0) ? 'even' : '';
+					$even_class	   .=	 ($c <= $this->_limit) ? ' last' : '';
+					
+					$info['table_name']		=	'b2b_selling_leads';
+					$info['original_price'] = $info['price'];
+					$info['price'] = $currency_converter_helper->convert ($info['price_currency_locale'], $info['original_price']);
+					$info['shopping_cart_enable'] = (($global_conf['payment_system'] == 'On') && ($global_conf['marchent_payment_system'] == 'On') &&  ($info['eCommerce'] == 'YES') && ($currency_converter_helper->checkCurrency ($info['price_currency_locale']) == true) ) ? true : false;
+					$info['primary_file_field_format']	=	$primary_file_field_format;	
+				?>  
+                <script>
+				$(document).ready(function() {
+					try{ 
+						var item_array = <?php echo Zend_Json_Encoder::encode($info); ?>;		
+						var indexCartModel = kendo.observable({  			
+							addToCart: function(e) {					
+								$.each(item_array, function(key, value){
+										e.data[key] = value;
+									});						
+								cart.add(e.data);
+							}
+						});
+						kendo.bind($("#selling-last-cart-info-<?php echo $info['id']; ?>"), indexCartModel); 
+					}catch(e){};
+				});
+				</script> 
+                <div class="block-content <?php echo $even_class; ?>">
+                    <a href="<?php echo $this->_view->url(array('module' => 'B2b', 'controller' => 'details', 'action' => 'selling', 'company_title' => $this->_view->escape($info['company_title']), 'title' => $this->_view->escape($info['seo_title'])), 'Selloffer-Details/:company_title/:title/*', true); ?>" title="<?php echo $this->_view->escape($info['name']); ?>" link="<?php echo $primary_file_field_format; ?>"><img src="<?php echo $primary_file_field_format; ?>" width="60" height="60" border="0" class="thumb"/></a>
+                    <span class="block-title"><a href="<?php echo $this->_view->url(array('module' => 'B2b', 'controller' => 'selling', 'action' => 'products', 'company_title' => $this->_view->escape($info['company_title']), 'title' => $this->_view->escape($info['seo_title'])), 'Selloffer-Details/:company_title/:title/*', true); ?>" title="<?php echo $this->_view->escape($info['name']); ?>"><?php echo $this->truncate($this->_view->escape($info['name']), 0, 14, true, 'UTF-8'); ?></a></span><br />
+                    <?php echo $this->truncate($this->_view->escape($info['description']), 0, 35, true, 'UTF-8'); ?><br />
+                    <div class="rating">
+                    	<?php	
+							$total_votes = (empty($info['voter_count'])) ? 0 : ceil((($info['total_votes'] / $info['voter_count']) * 5));
+							for($i = 1; $i <= 5; $i++)
+							{
+								$star_img = ($i <= $total_votes) ? 'star-small-active.png' : 'star-small-inactive.png';
+						?>
+                      			<img src="application/layouts/scripts/<?php echo $this->_front_template['theme_folder']; ?>/images/b2b_img/<?php echo $star_img; ?>" border="0" />
+                      	<?php
+							}
+						?>
+                    </div>
+                    <br><span class="price-previous"><?php echo $currency_symbol. ' ' . $this->_view->numbers($this->_view->escape($info['strikethrough_price'])); ?></span> &nbsp; <span class="price"><?php echo $currency_symbol. ' ' . $this->_view->numbers($this->_view->escape($info['original_price'])); ?></span>
+                    <?php if($info['shopping_cart_enable']) { ?>
+                    <div class="link-btn cart-btn" id="selling-last-cart-info-<?php echo $info['id']; ?>"><a href="javascript:void(0)" data-bind="click: addToCart"><?php echo  $this->_translator->translator('common_add_to_cart_btn', '', 'B2b'); ?></a></div>
+                	<?php } ?>
+                </div>
+                <?php
+					$c++;
+				}
+				?>               
+            </div>
+        </div>
+<?php			
+		}
+	}
+}
+try
+{
+	$b2b_sidebar_lastmindeal_class = new b2b_sidebar_lastmindeal($this);
+	$b2b_sidebar_lastmindeal_class->class_body();
+}
+catch(Exception $e)
+{
+	echo $e->getMessage();
+}
+?>

@@ -1,0 +1,16 @@
+<?php
+$front_template = Zend_Registry::get('front_template'); 
+$translator = Zend_Registry::get('translator');
+?>
+
+<div class="block block-trade-alert">
+	<div class="block-heading">
+    	<div class="symbol"><?php echo $translator->translator('block_trade_alert_title','','', $front_template['theme_folder']); ?></div>
+	</div>
+    <div class="block-body">
+    	<p>
+        	Trade Alerts Set : <a href="#">0</a><br />
+    		Remaining : <a href="#">20</a>
+        </p>
+    </div>
+</div>

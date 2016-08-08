@@ -1,0 +1,104 @@
+<!DOCTYPE html>
+<?php $front_template = Zend_Registry::get('front_template'); $is_frontend = new Eicra_Model_DbTable_Frontend(); $license = new Zend_Session_Namespace('License'); $validation_data = $license->license_data;
+$locale = Eicra_Global_Variable::getSession()->sess_lang;
+$locale_arr = explode('_', $locale);
+$locale_direction = Eicra_Global_Variable::getSession()->site_direction;
+?> 
+<html dir="<?php echo $locale_direction; ?>" lang="<?php echo $locale_arr[0]; ?>"> 
+<head>
+<meta charset="utf-8">
+<base href="<?php echo $this->serverUrl().$this->baseUrl(); ?>/" /> 
+
+<link rel="shortcut icon" href="<?php $global_conf = Zend_Registry::get('global_conf'); echo $global_conf['frontend_favicon']; ?>" />
+
+<?php  echo $this->headMeta(); ?>
+
+<?php echo html_entity_decode($this->headTitle(), ENT_QUOTES ,"UTF-8"); ?>
+
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<?php
+$version = new Eicra_License_Version();
+echo $this->partial('head/headscript.phtml');
+$auth = Zend_Auth::getInstance ();
+$frontController = Zend_Controller_Front::getInstance();
+$moduleName = strtolower($frontController->getRequest()->getModuleName());	
+$controllerName = strtolower($frontController->getRequest()->getControllerName());
+$actionName = strtolower($frontController->getRequest()->getActionName());
+
+function showLeftPanel($diff_arr = array())
+{
+	$show_array = array(
+						array('gallery', 'members', 'add'),
+						array('gallery', 'members', 'edit'),
+						array('news', 'members', 'add'),
+						array('news', 'members', 'edit'),
+						array('invoice', 'members', 'edit'),
+						array('invoice', 'members', 'details'),
+						);
+	$return = false;
+	foreach($show_array as $s_array)
+	{
+		if(count(array_diff($diff_arr, $s_array)) === 0)
+		{
+			$return = true;
+			break;
+		}
+	}
+	return $return;
+}
+?>
+</head>
+<body>
+<div id="wrapper">
+	<span id="top"></span>
+    <!-- Header Start -->
+    <?php echo $this->layout()->render('header'); ?>
+    <!-- Header End -->
+    
+    <!-- Top Navigation Start-->
+    <?php echo $this->partial('blocks/members/menu_header_member.phtml'); ?>
+    <!-- Top Navigation End-->
+    
+    <!-- Main Body Start -->
+    <div id="main-container">
+    <?php 
+	$body_content_style = '';  
+    if( !showLeftPanel(array($moduleName, $controllerName, $actionName)) )
+    {
+		$body_content_style = '';
+	?>         
+        <!-- Inner Sidebar Start -->
+        <div id="sidebar-inner">					
+            <?php echo $this->partial('blocks/members/members_menu.phtml');   ?>                	
+            <?php echo $this->partial('blocks/members/members_sidebar_overview.phtml'); ?>
+            <?php echo $this->partial('blocks/members/ad_sidebar.phtml'); ?>
+            <?php echo $this->partial('blocks/members/members_package.phtml');   ?>  
+        </div>
+        <!-- Inner Sidebar End -->
+    <?php
+    }
+	else
+	{
+		$body_content_style = 'style="width:100%"';
+	}
+    ?>
+        
+        <!-- Inner Content Start -->
+        <section id="content-inner" <?php echo $body_content_style; ?>>
+            <?php echo $this->partial('blocks/members/breadcrumb.phtml'); ?>
+            <?php echo $this->layout()->content ?>
+        </section>
+        <!-- Inner Content End -->
+    </div>
+    <!-- Main Body End -->
+
+	<!-- Footer Start -->
+    <?php echo $this->layout()->render('footer'); ?>
+    <!-- Footer End -->
+</div>
+<?php //if($global_conf['payment_system'] == 'On' && $global_conf['marchent_payment_system'] == 'On'){ echo $this->partial('shopping-cart.phtml'); } ?>
+<div class="go-top top"><a href="#top" id="scroll-top"><?php echo $this->translator->translator('front_footer_top','', '', $front_template['theme_folder']); ?></a></div>
+<?php echo $this->headScript()->setFile('application/layouts/scripts/'.$front_template['theme_folder'].'/vendor/scripts/js/scroll.js'); ?>
+</body>
+</html>
+<?php echo $this->escape($global_conf['analytics_code']); ?>

@@ -1,0 +1,35 @@
+<?php 
+$front_template = Zend_Registry::get('front_template'); 
+$translator = Zend_Registry::get('translator');
+?>
+
+<div class="block block-account-stats">
+	<div class="block-heading">
+    	<div class="symbol"><?php echo $translator->translator('block_my_stats_title','','', $front_template['theme_folder']); ?></div>
+	</div>
+    <div class="block-body">
+        <div class="stat-info"><span>Gold Member</span><a href="#">Upgrade</a></div>
+        <p>
+            <img src="application/layouts/scripts/<?php echo $front_template['theme_folder']; ?>/images/b2b_img/avatar.png" border="0" width="60" class="avatar"/>
+            <strong>Aryo Soeseno</strong><br />
+            (Director CEO General Manager)
+            Trading And Export
+        </p>
+		
+        <div class="stat-info">
+      		<span>Country:</span> Bangladesh
+        </div>
+        
+        <div class="stat-info">
+      		<span>Regd On:</span> 15-01-10
+        </div>
+        
+        <div class="stat-info">
+      		<span>Last Signed In:</span> 14-11-12
+        </div>
+        
+        <div class="stat-info">
+      		<span>Expiry Date:</span> Unlimited
+        </div>
+    </div>
+</div>

@@ -1,0 +1,165 @@
+<?php
+class b2b_content_popular
+{
+	protected	$_front_template;
+	protected	$_view;
+	protected	$_group_id = 1;
+	protected	$_limit = 20;
+	protected	$_order = 'total_votes';
+	protected	$_dir = 'DESC';	
+	protected	$_translator;
+	protected	$_product_db;
+	protected	$_currency;
+	protected	$_preferences_db;
+	protected	$_preferences;
+	
+	public function __construct($view) 
+	{
+		$this->_front_template = Zend_Registry::get('front_template'); 
+		$this->_view =	$view;	
+		$this->_translator = Zend_Registry::get('translator');	
+		$this->_product_db = new B2b_Model_DbTable_Products();	
+		//$global_conf = Zend_Registry::get('global_conf');
+		//$this->_currency = new Zend_Currency($global_conf['default_locale']);
+		$this->_preferences_db = new B2b_Model_DbTable_Preferences();
+		$this->_preferences	=	$this->_preferences_db->getOptions();
+		$this->_limit = ($this->_preferences && !empty($this->_preferences['popular_products_on_home'])) ? $this->_preferences['popular_products_on_home'] : $this->_limit;
+		if($this->_preferences && !empty($this->_preferences['popular_products_home_sortby']))
+		{
+			$popular_products_home_sortby_arr = explode('-', $this->_preferences['popular_products_home_sortby']);
+			$this->_order = (!empty($popular_products_home_sortby_arr[0]) && $popular_products_home_sortby_arr[0] != '_') ? $popular_products_home_sortby_arr[0] : $this->_order;
+			$this->_dir = (!empty($popular_products_home_sortby_arr[1]) && $popular_products_home_sortby_arr[1] != '_') ? $popular_products_home_sortby_arr[1] : $this->_dir;
+		}
+	}
+	
+	public function truncate($phrase,$start_words, $max_words, $char = false, $charset = null)
+	{
+		if($char)
+		{
+			if(mb_strlen($phrase, $charset) > $length) {
+				  $dot = (strlen($phrase) > ($max_words - $start_words)) ? '...' : '';
+				  $phrase = mb_substr($phrase, $start_words, $max_words, $charset) . $dot;
+				}
+		}
+		else
+		{
+		   $phrase_array = explode(' ',$phrase);
+		   if(count($phrase_array) > $max_words && $max_words > 0)
+			  $phrase = implode(' ',array_slice($phrase_array, $start_words, $max_words)).'...';  
+		}
+	   return $phrase;
+	}
+	
+	public function class_body()
+	{
+		echo $this->_view->headScript()->setFile('application/layouts/scripts/'.$this->_front_template['theme_folder'].'/vendor/scripts/js/jquery.bxslider.js');
+		echo $this->_view->headScript()->setFile('application/layouts/scripts/'.$this->_front_template['theme_folder'].'/vendor/scripts/js/jquery.fitvids.js');
+		echo $this->_view->headScript()->setFile('application/layouts/scripts/'.$this->_front_template['theme_folder'].'/vendor/scripts/js/jquery.easing.1.3.js');
+		echo $this->_view->headLink()->setStylesheet('application/layouts/scripts/'.$this->_front_template['theme_folder'].'/css/jquery.bxslider.css');
+		
+		$search_params['filter']['filters'][0] = array('field' => 'group_id', 'operator' => 'eq', 'value' => $this->_group_id);
+        $search_params['filter']['logic'] = ($search_params['filter']['logic']) ? $search_params['filter']['logic'] : 'and';
+		$search_params['filter']['filters'][1] = array('field' => 'displayble', 'operator' => 'eq', 'value' => '1');
+		$search_params['filter']['filters'][2] = array('field' => 'status', 'operator' => 'eq', 'value' => '1');
+		$search_params['filter']['filters'][3] = array('field' => 'cpy_active', 'operator' => 'eq', 'value' => '1');
+		
+		$search_params['sort'][0]	=	 array('field' => $this->_order, 'dir' => $this->_dir);
+		
+		$sql_class	=	new B2b_Controller_Helper_ProductSql();
+		$tableColumns = $sql_class->getB2bContentPopularList (array('dataLimit' => $this->_limit));
+		$product_info = $this->_product_db->getListInfo ('1', $search_params, $tableColumns);	
+		if($product_info)
+		{
+
+?>
+		<script type="text/javascript">
+		$(document).ready(function(){
+		  $('.slider4').bxSlider({
+			slideWidth: 175,
+			minSlides: 2,
+			maxSlides: 5,
+			moveSlides: 1,
+			slideMargin: 10
+		  });
+		});
+		</script>
+        <div class="block block-popular">
+            <div class="block-body">
+                <div class="block-heading silver"><div class="symbol"><?php echo $this->_translator->translator('block_popular_title','','', $this->_front_template['theme_folder']); ?></div></div>
+                
+                <div class="slider4">
+                	<?php
+					foreach($product_info as $product_key => $info)
+					{	
+						$info = (!is_array($info)) ? $info->toArray() : $info;
+						$currency_arr 	= ($info['price_currency']) ? explode('-', $info['price_currency']) : array();
+						$currency_symbol 		= (!empty($currency_arr[0])) ? trim($currency_arr[0]) : '';				
+						$img_thumb_arr = explode(',', $info['product_images']);
+						$primary_file_field_format = ($this->_view->escape(
+											
+											$info['product_images_primary'])) ? $info['images_path'] .
+	
+										 '/' .
+	
+										 $this->_view->escape(
+	
+												$info['product_images_primary']) : $info['images_path'] .
+	
+										 '/' . $img_thumb_arr[0];	
+						$qty_show		=	(!empty($info['max_supply'])) ? $info['max_supply'] : '';
+						$qty_show	   .=	(!empty($info['max_supply']) && !empty($info['max_unit_type'])) ? ' '.$info['max_unit_type'] : '';
+						$qty_show	   .=	(!empty($info['max_supply']) && !empty($info['delivery_leadtime'])) ? ' '.$this->_translator->translator('block_per_title','','', $this->_front_template['theme_folder']).' '.$info['delivery_leadtime'] : '';
+						$qty_show		=	(empty($qty_show)) ? ((!empty($info['min_quantity'])) ? $info['min_quantity']. ' ' .((!empty($info['min_unit_type'])) ? $info['min_unit_type'] : '' ) : '') : $qty_show;
+						
+						$info['original_price'] = $info['price'];
+						//$info['price'] = $this->_view->price($this->_view->escape($info['original_price']));
+						$info['shopping_cart_enable'] = (($global_conf['payment_system'] == 'On') && ($global_conf['marchent_payment_system'] == 'On') &&  ($info['eCommerce'] == 'YES') ) ? true : false;
+						$info['primary_file_field_format']	=	$primary_file_field_format;	
+					?>
+                    
+                    <div class="slide">
+                        <div class="col">
+                            <div class="img-wrapper">
+                                <a href="<?php echo $this->_view->url(array('module' => 'B2b', 'controller' => 'details', 'action' => 'products', 'company_title' => $this->_view->escape($info['company_title']), 'title' => $this->_view->escape($info['seo_title'])), 'Product-Details/:company_title/:title/*', true); ?>" title="<?php echo $this->_view->escape($info['name']); ?>" link="<?php echo $primary_file_field_format; ?>"><img src="<?php echo $primary_file_field_format; ?>" border="0" width="100" height="100" class="thumb" /></a>
+                            </div>
+                            <div class="details">
+                                <span class="block-title"><a href="<?php echo $this->_view->url(array('module' => 'B2b', 'controller' => 'details', 'action' => 'products', 'company_title' => $this->_view->escape($info['company_title']), 'title' => $this->_view->escape($info['seo_title'])), 'Product-Details/:company_title/:title/*', true); ?>" title="<?php echo $this->_view->escape($info['name']); ?>"><?php echo $this->truncate($this->_view->escape($info['name']), 0, 14, true, 'UTF-8'); ?></a></span><br />
+                                <?php echo $this->truncate($this->_view->escape($info['short_description']), 0, 20, true, 'UTF-8'); ?><br />
+                                <div class="rating">
+                                	<?php										
+										$total_votes = (empty($info['voter_count'])) ? 0 : ceil((($info['total_votes'] / $info['voter_count']) * 5));
+										for($i = 1; $i <= 5; $i++)
+										{
+											$star_img = ($i <= $total_votes) ? 'star-small-active.png' : 'star-small-inactive.png';
+									?>
+                                    <img src="application/layouts/scripts/<?php echo $this->_front_template['theme_folder']; ?>/images/b2b_img/<?php echo $star_img; ?>" border="0" />
+                                    <?php
+										}
+									?>
+                                </div>
+                                <br><?php echo $this->_translator->translator('block_quantity_title','','', $this->_front_template['theme_folder']); ?> <span class="qty"><?php echo $qty_show; ?></span>
+                                <br><span class="price-previous"><?php echo $currency_symbol. ' ' . $this->_view->numbers($this->_view->escape($info['strikethrough_price'])); ?></span> &nbsp; <span class="price"><?php echo $currency_symbol. ' ' . $this->_view->numbers($this->_view->escape($info['original_price'])); ?></span><br />
+                                
+                            </div>
+                        </div>
+                    </div>
+                    <?php
+					}
+					?>                    
+                </div>
+            </div>
+        </div>
+<?php
+		}
+	}
+}
+try
+{
+	$b2b_content_popular_class = new b2b_content_popular($this);
+	$b2b_content_popular_class->class_body();
+}
+catch(Exception $e)
+{
+	echo $e->getMessage();
+}	
+?>

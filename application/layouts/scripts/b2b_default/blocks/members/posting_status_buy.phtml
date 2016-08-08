@@ -1,0 +1,20 @@
+<?php 
+$front_template = Zend_Registry::get('front_template'); 
+$translator = Zend_Registry::get('translator');
+?>
+
+<div class="block block-dashboard-box buy-status">
+	<div class="block-heading">
+    	<div class="symbol"><?php echo $translator->translator('block_posting_stats_title','','', $front_template['theme_folder']); ?> (Buy)</div>
+	</div>
+    <div class="block-body">
+		<ul>
+        	<li><a href="#"><div>Sell Offers Offered</div> <span>10 Only</span></a></li>
+        	<li><a href="#"><div>Sell Offer / Product Left</div> <span>0</span></a></li>
+        	<li><a href="#"><div>Buy Offers Left</div> <span>0</span></a></li>
+			<li><a href="#"><div>Sell Offers / Products Inquiry Left</div> <span>20 Only</span></a></li>
+        	<li><a href="#"><div>Buy Offers Inquiry Left</div> <span>100 Only</span></a></li>
+        </ul>
+        <div class="bottom"><a href="#">Add Buy Offer</a></div>
+    </div>
+</div>

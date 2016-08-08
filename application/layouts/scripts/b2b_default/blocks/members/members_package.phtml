@@ -1,0 +1,106 @@
+<?php
+class members_package
+{
+	protected	$_front_template;
+	protected	$_view;
+	protected	$_group_id = 1;
+	protected	$_limit = 0;
+	protected	$_order = 'package_order';
+	protected	$_dir = 'ASC';	
+	protected	$_translator;
+	protected	$_success_story_db;
+	protected	$_currency;
+	protected	$_preferences_db;
+	protected	$_preferences;
+	protected	$_global_conf;
+	
+	public function __construct($view) 
+	{
+		$this->_front_template = Zend_Registry::get('front_template'); 
+		$this->_view =	$view;	
+		$this->_global_conf = Zend_Registry::get('global_conf');
+		$this->_currency = new Zend_Currency($this->_global_conf['default_locale']);	
+		$this->_translator = Zend_Registry::get('translator');	
+		$this->_packages_db = new B2b_Model_DbTable_Package();	
+		$this->_preferences_db = new B2b_Model_DbTable_Preferences();
+		$this->_preferences	=	$this->_preferences_db->getOptions();
+		$this->_limit = ($this->_preferences && !empty($this->_preferences['pMembers_on_home'])) ? $this->_preferences['pMembers_on_home'] : $this->_limit;	
+		if($this->_preferences && !empty($this->_preferences['pMembers_home_sortby']))
+		{
+			$pMembers_home_sortby_arr = explode('-', $this->_preferences['pMembers_home_sortby']);
+			$this->_order = (!empty($pMembers_home_sortby_arr[0]) && $pMembers_home_sortby_arr[0] != '_') ? (($pMembers_home_sortby_arr[0] == 'deal') ? $this->_deal_operator.'_num' : $pMembers_home_sortby_arr[0]) : $this->_order;
+			$this->_dir = (!empty($pMembers_home_sortby_arr[1]) && $pMembers_home_sortby_arr[1] != '_') ? $pMembers_home_sortby_arr[1] : $this->_dir;
+		}
+	}
+	
+	public function truncate($phrase,$start_words, $max_words, $char = false, $charset = null)
+	{
+		if($char)
+		{
+			if(mb_strlen($phrase, $charset) > $length) {
+				  $dot = (strlen($phrase) > ($max_words - $start_words)) ? '...' : '';
+				  $phrase = mb_substr($phrase, $start_words, $max_words, $charset) . $dot;
+				}
+		}
+		else
+		{
+		   $phrase_array = explode(' ',$phrase);
+		   if(count($phrase_array) > $max_words && $max_words > 0)
+			  $phrase = implode(' ',array_slice($phrase_array, $start_words, $max_words)).'...';  
+		}
+	   return $phrase;
+	}	
+	
+	public function class_body()
+	{		
+		$search_params['filter']['logic'] = ($search_params['filter']['logic']) ? $search_params['filter']['logic'] : 'and';		
+		$search_params['filter']['filters'][0] = array('field' => 'active', 'operator' => 'eq', 'value' => '1');
+		$search_params['filter']['filters'][1] = array('field' => 'displayable', 'operator' => 'eq', 'value' => '1');
+		$search_params['sort'][0]	=	 array('field' => $this->_order, 'dir' => $this->_dir);	
+		
+		$search_params['dataLimit']		=	$this->_limit;	
+						
+		$package_info = $this->_packages_db->getListInfo ('1', $search_params, false);	
+		if($package_info)
+	  	{
+		  $currenceSymbol = $this->_currency->getSymbol();		
+?>
+		<div class="member-block block-membership-pkgs">
+            <div class="block-heading">
+                <div class="symbol"><?php echo $this->_translator->translator('members_package_title', '', '', $this->_front_template['theme_folder']); ?></div>
+            </div>
+            <div class="block-body">
+                <?php
+					foreach($package_info as $package_info_key => $info)
+					{
+					?>
+                    <div class="block-content">
+                        <div class="membership-pkg"><?php echo $this->_view->escape($info['name']); ?></div>
+                        <?php if($info['b2b_images']){ ?><img src="data/frontImages/b2b/b2b_images/<?php echo $this->_view->escape($info['b2b_images']); ?>" /><?php } ?>
+                        <strong><?php echo $this->_view->escape($info['description']); ?></strong><br />
+                        <?php echo $this->_translator->translator('front_membership_package_price', '', 'B2b'); ?> : <?php echo (!empty($info['price'])) ? $currenceSymbol.' '.$this->_view->escape($info['price']) : $this->_translator->translator('b2b_package_member_free', '', 'B2b'); ?><br />
+                        <?php echo $this->_translator->translator('front_membership_package_product', '', 'B2b'); ?> : <?php echo $this->_view->escape($info['products']); ?><br />
+                        <?php echo $this->_translator->translator('front_membership_package_buying', '', 'B2b'); ?> : <?php echo (!empty($info['buying'])) ? $this->_view->escape($info['buying']) : $this->_translator->translator('b2b_package_member_unlimited', '', 'B2b'); ?><br />
+                        <?php echo $this->_translator->translator('front_membership_package_selling', '', 'B2b'); ?> : <?php echo (!empty($info['selling'])) ? $this->_view->escape($info['selling']) : $this->_translator->translator('b2b_package_member_unlimited', '', 'B2b'); ?><br />
+                        <?php echo $this->_translator->translator('front_membership_package_renewable', '', 'B2b'); ?> : <?php echo (!empty($info['renewable'])) ? $this->_view->escape($info['renewable']) . '  ' . $this->_translator->translator('b2b_days', '', 'B2b') : $this->_translator->translator('b2b_package_member_forever', '', 'B2b'); ?><br /><br />
+						<!-- <div class="link-btn"><a href="Registration/104"><?php // echo $this->_translator->translator('front_topbar_register', '','', $this->_front_template['theme_folder']); ?>!</a></div> -->                        <hr />
+                    </div>
+                    <?php
+					}
+					?>
+            </div>
+        </div>	
+<?php	
+		}
+	}
+}
+try
+{
+	$members_package_class = new members_package($this);
+	$members_package_class->class_body();
+}
+catch(Exception $e)
+{
+	echo $e->getMessage();
+}	
+?>

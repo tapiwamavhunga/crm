@@ -1,0 +1,160 @@
+<?php
+class menu_category
+{
+	protected	$_front_template;
+	protected	$_view;
+	protected	$_breadcrumb;
+	protected	$_group_id = 27;	
+	protected	$translator;
+	protected	$_menu;
+	protected	$_locale_direction;
+	protected	$_preferences_data;
+	
+	public function __construct($view) 
+	{
+		$this->_front_template = Zend_Registry::get('front_template'); 
+		$this->_view =	$view;	
+		$this->_breadcrumb = Eicra_Global_Variable::getSession()->breadcrumb;
+		$this->translator = Zend_Registry::get('translator');
+		$this->_menu = new B2b_Model_DbTable_Category();
+		$this->_locale_direction = Eicra_Global_Variable::getSession()->site_direction;
+		
+		$preferences_db = new B2b_Model_DbTable_Preferences();
+		$this->_preferences_data = $preferences_db->getOptions();	
+		
+		echo $this->_view->headScript()->setFile('application/layouts/scripts/'.$this->_front_template['theme_folder'].'/vendor/scripts/js/jquery.cookie.js');
+		echo $this->_view->headScript()->setFile('application/layouts/scripts/'.$this->_front_template['theme_folder'].'/vendor/scripts/js/jquery.hoverIntent.minified.js');
+		echo $this->_view->headScript()->setFile('application/layouts/scripts/'.$this->_front_template['theme_folder'].'/vendor/scripts/js/sherpa_ui.js');
+		
+		echo $this->_view->headLink()->setStylesheet('application/layouts/scripts/'.$this->_front_template['theme_folder'].'/css/members-menu/styles/960_fluid.css');
+		echo $this->_view->headLink()->setStylesheet('application/layouts/scripts/'.$this->_front_template['theme_folder'].'/css/members-menu/styles/main.css');
+		echo $this->_view->headLink()->setStylesheet('application/layouts/scripts/'.$this->_front_template['theme_folder'].'/css/members-menu/styles/bar_nav.css');
+		echo $this->_view->headLink()->setStylesheet('application/layouts/scripts/'.$this->_front_template['theme_folder'].'/css/members-menu/styles/side_nav.css');
+	}
+	
+	public function truncate($phrase,$start_words, $max_words, $char = false, $charset = null)
+	{
+		if($char)
+		{
+			if(mb_strlen($phrase, $charset) > $length) {
+				  $dot = (strlen($phrase) > ($max_words - $start_words)) ? '...' : '';
+				  $phrase = mb_substr($phrase, $start_words, $max_words, $charset) . $dot;
+				}
+		}
+		else
+		{
+		   $phrase_array = explode(' ',$phrase);
+		   if(count($phrase_array) > $max_words && $max_words > 0)
+			  $phrase = implode(' ',array_slice($phrase_array, $start_words, $max_words)).'...';  
+		}
+	   return $phrase;
+	}
+	
+	public function createSubMenu($parent)
+	{	
+		$search_params['filter']['filters'][0] = array('field' => 'parent_id', 'operator' => 'eq', 'value' => $parent);
+		$search_params['filter']['logic'] = ($search_params['filter']['logic']) ? $search_params['filter']['logic'] : 'and';				
+		$search_params['filter']['filters'][1] = array('field' => 'displayble', 'operator' => 'eq', 'value' => '1');		
+		
+		if($this->_preferences_data && $this->_preferences_data['category_on_home_sortby'] && $this->_preferences_data['category_on_home_sortby'] != '_')
+		{
+			$sort_arr	=	explode('-', $this->_preferences_data['category_on_home_sortby']);
+			$search_params['sort'][0]	 = array('field' => $sort_arr[0],  'dir' => $sort_arr[1]);
+		}
+			
+		$menu_obj = $this->_menu->getListInfo ('1', $search_params, false);
+		$side_class = ($this->_locale_direction == 'rtl') ? 'left ' : ''; 
+		$ul_class = ($this->_locale_direction == 'rtl') ? 'slide_left' : ''; 
+		$mrnu_html = '<ul class="'.$ul_class.'">';
+		foreach($menu_obj as $key => $menu_arr)
+		{
+			$link = $this->_view->url(array('module'=> 'B2b', 'controller' => 'frontend','action' => 'classifieds', 'category' => $this->_view->escape($menu_arr['url_portion'])), 'All-Classified-list/*', true);
+			$is_child = $this->_menu->checkSubCategory($menu_arr['id'], true);
+			$mrnu_html .= '<li>';
+				$mrnu_html .= '<a href="'.$link.'">';
+					$mrnu_html .= ($menu_arr['b2b_images'] && $this->_preferences_data['show_image_on_category'] == '1') ? '<img src="data/frontImages/b2b/b2b_images/'.$menu_arr['b2b_images'].'" height="20" width="20" border="0">' : '';
+					$mrnu_html .= '<span>'.$this->truncate($this->_view->escape($menu_arr['name']), 0, 20, true, 'UTF-8').' <span>('.$this->_view->numbers($this->_view->escape($menu_arr['company_num'])).')</span></span>';
+					$mrnu_html .= ($is_child) ? '<span class="'.$side_class.'icon">&nbsp;</span>' : '';
+				$mrnu_html .= '</a>';
+				$sub_count++;
+				$mrnu_html .= ($is_child) ? $this->createSubMenu($menu_arr['id']) : '';
+			$mrnu_html .= '</li>';
+		}
+		$mrnu_html .= '</ul>';
+		return $mrnu_html;
+	}
+	
+	public function class_body()
+	{		
+		$search_params['filter']['filters'][0] = array('field' => 'parent_id', 'operator' => 'eq', 'value' => 0);
+		$search_params['filter']['logic'] = ($search_params['filter']['logic']) ? $search_params['filter']['logic'] : 'and';				
+		$search_params['filter']['filters'][1] = array('field' => 'displayble', 'operator' => 'eq', 'value' => '1');
+		$search_params['dataLimit']		=	(!empty($this->_preferences_data['category_on_home'])) ? $this->_preferences_data['category_on_home'] : 0;
+		
+		if($this->_preferences_data && $this->_preferences_data['category_on_home_sortby'] && $this->_preferences_data['category_on_home_sortby'] != '_')
+		{
+			$sort_arr	=	explode('-', $this->_preferences_data['category_on_home_sortby']);
+			$search_params['sort'][0]	 = array('field' => $sort_arr[0],  'dir' => $sort_arr[1]);
+		}
+		
+		$menu_obj = $this->_menu->getListInfo ('1', $search_params, false);
+?>
+		<div class="block block-member-menu">
+            <div class="block-heading">
+                <div class="symbol"><?php echo $this->translator->translator('block_category_title', '', '', $this->_front_template['theme_folder']); ?></div>
+            </div>
+            <div class="block-body">
+                <div id="side_nav" class="side_nav grid_3 push_down">
+                <?php				
+				if($menu_obj)
+                {
+					$side_class = ($this->_locale_direction == 'rtl') ? 'left ' : ''; 
+					$ul_class = ($this->_locale_direction == 'rtl') ? 'slide_left' : ''; 
+				?>
+                    <ul class="clearfix <?php echo $side_class; ?>">                        
+					<?php                       
+                        foreach($menu_obj as $key => $menu_arr)
+                        {
+							$link = $this->_view->url(array('module'=> 'B2b', 'controller' => 'frontend','action' => 'classifieds', 'category' => $this->_view->escape($menu_arr['url_portion'])), 'All-Classified-list/*', true);
+							$is_child = $this->_menu->checkSubCategory($menu_arr['id'], true);							
+                     ?>
+                     	<li>
+                        	<a href="<?php echo $link; ?>">
+                            	<?php if($menu_arr['b2b_images'] && $this->_preferences_data['show_image_on_category'] == '1'){ ?><img src="data/frontImages/b2b/b2b_images/<?php echo $menu_arr['b2b_images']; ?>" height="20" width="20" border="0"><?php } ?>
+                            	<span><?php echo $this->truncate($this->_view->escape($menu_arr['name']), 0, 20, true, 'UTF-8'); ?> <span>(<?php echo $this->_view->numbers($this->_view->escape($menu_arr['company_num'])); ?>)</span></span>
+                                <?php  if($is_child){ ?><span class="<?php echo $side_class; ?>icon">&nbsp;</span><?php } ?>
+                            </a>
+                            <?php echo ($is_child) ? $this->createSubMenu($menu_arr['id']) : ''; ?>
+                        </li> 
+                     <?php     
+                        }                        
+                    ?> 
+                    <?php
+					  if(!empty($this->_preferences_data['category_on_home']))
+					  {
+					  ?>				
+						  <li><a href="<?php echo $this->_view->url(array('module'=> 'B2b', 'controller' => 'frontend','action' => 'categorylist'), 'All-B2b-Category-list/*', true); ?>"><span><?php echo $this->translator->translator('b2b_category_view_all', '', 'B2b'); ?></span></a></li>
+					  <?php
+					  }
+					 ?>                        			
+                    </ul>
+				<?php
+                }				
+				?>
+                </div>
+            </div> 
+                       
+		</div>       	
+<?php			
+	}
+}
+try
+{
+	$menu_category_class = new menu_category($this);
+	$menu_category_class->class_body();
+}
+catch(Exception $e)
+{
+	echo $e->getMessage();
+}	
+?>

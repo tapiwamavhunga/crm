@@ -1,0 +1,52 @@
+<?php
+$front_template = Zend_Registry::get('front_template');
+
+echo $this->headScript()->setFile($this->baseUrl().'/js/jquery/jtruncate/jquery.jtruncate.pack.js');
+echo $this->headLink()->setStylesheet('application/layouts/scripts/'.$front_template['theme_folder'].'/css/category-link.css');
+?>
+
+<script>
+$(document).ready(function() {
+function text_truncate()
+{
+	$('span.jTruncate').jTruncate({  
+		length:  300,  
+		minTrail: 0,  
+		moreText: "common_see_all",  
+		lessText: "common_hide",  
+		ellipsisText: "",  
+		moreAni: "fast",  
+		lessAni: 2000  
+	});
+}
+
+ });
+ 
+</script>
+
+<div class="mod">
+    <div id="breadcrumb">
+        <ul class="crumbs">
+            <li class="first"><a href="#" style="z-index:9;"><span></span>Home</a></li>
+            <li><a href="#" style="z-index:8;">All Categories</a></li>
+            <li><a href="#" style="z-index:7;">Electronics</a></li>
+            <li><a href="#" style="z-index:6;">Cell Phones</a></li>
+            <li><a href="#" style="z-index:5;">Samsung</a></li>
+            <li class="last"><a href="javascript:void(0);" style="z-index:4;">Samsung Galaxy S3 <span>187,321 Results</span></a></li>
+        </ul>
+    </div>
+	<div class="clear"></div>
+
+    <div class="invalid">
+        <div class="not-found">Sorry, this page may have moved or is no longer available.</div>
+        <br />
+        <strong><ins>Please try one of the following options:</ins></strong>
+        <br /><br />
+        <ul>
+            <li>Please check the web address you entered to make sure if it's correct.</li>
+            <li>Try to access the page directly from the <strong>AzuwaB2B</strong> <a href="">Homepage</a> or <a href="">Sitemap</a>.</li>
+            <li>We've got millions of products and suppliers from around the world here on <strong>AzuwaB2B.com</strong></li>
+            <li>Please try to enter a few words in the search box above.</li>
+        </ul>
+    </div>
+</div>

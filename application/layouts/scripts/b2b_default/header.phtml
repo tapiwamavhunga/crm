@@ -1,0 +1,55 @@
+<?php 
+$front_template = Zend_Registry::get('front_template'); 
+$this->translator = Zend_Registry::get('translator');
+$global_conf = Zend_Registry::get('global_conf');
+$auth = Zend_Auth::getInstance ();
+$sugnIn_link	=	($auth->hasIdentity()) ? '<a href="javascript:void(0);" class="topbar_logout_btn">'.$this->translator->translator('front_topbar_signout','', '', $front_template['theme_folder']).'</a>' : '<a href="Frontend-Login">'.$this->translator->translator('front_topbar_signin','', '', $front_template['theme_folder']).'</a>';
+?>
+<script type="text/javascript">
+$(document).ready(function() {	
+	logOut('a.topbar_logout_btn', '<img src="application/layouts/scripts/<?php echo $front_template['theme_folder']; ?>/images/loader/ajax-loader-email.gif" />', '', '<?php echo $this->translator->translator('common_front_header_signin','', '', $front_template['theme_folder']); ?>');
+});
+</script>
+<!-- Top Bar Start -->
+<div id="top-bar">
+    <div class="container">
+        <span class="welcome user-link">
+            <?php echo ($auth->hasIdentity()) ? $this->translator->translator('front_topbar_welcome_user',$auth->getIdentity()->firstName.' '.$auth->getIdentity()->lastName, '', $front_template['theme_folder']) : $this->translator->translator('front_topbar_welcome','', '', $front_template['theme_folder']).' '.$global_conf['site_name']; ?> : <?php echo $sugnIn_link; ?> | <a href="Registration/104"><?php echo $this->translator->translator('front_topbar_register','', '', $front_template['theme_folder']); ?></a>
+        </span>
+        
+        <div class="top-links">
+            <ul>
+                <li class="first"><a href="Premium-Membership"><?php echo $this->translator->translator('front_topbar_membership','', '', $front_template['theme_folder']); ?></a></li>
+                <li><a href="Trade-Shows"><?php echo $this->translator->translator('front_topbar_tradeshows','', '', $front_template['theme_folder']); ?></a></li>
+                <li><a href="Success-Stories"><?php echo $this->translator->translator('front_success_story','', '', $front_template['theme_folder']); ?></a></li>
+                <li><a href="Members-Dashboard"><?php echo $this->translator->translator('front_topbar_myaccount','', '', $front_template['theme_folder']); ?></a></li>                              
+                
+            </ul>
+            <div class="flags">
+                <?php echo $this->partial('blocks/global/header_language.phtml'); ?>
+            </div>
+        </div>
+            
+    </div>
+</div>
+<!-- Top Bar End -->
+
+<header id="header">
+	<div class="container">  
+        <!-- Header Start -->
+        <div class="logo">
+        	<a href="#"><img src="<?php if($global_conf['frontend_header_logo']){ echo $global_conf['frontend_header_logo']; }else{ ?>application/layouts/scripts/<?php echo $front_template['theme_folder']; ?>/images/logo.png<?php } ?>" alt="PHP Classified B2B Script, B2B Directory Script" title="Online Buy Sell Trading Script, B2B Trading Marketplace Script" height="50" border="0"></a>
+        	<!--<h1>Company Name</h1>-->
+    	</div>
+    
+    	<div class="right">
+        	<!--<div class="flags">
+            	<?php //echo $this->partial('blocks/global/header_language.phtml'); ?>
+        	</div>-->
+            <div class="clear"></div>
+            <?php $this->ad(208); ?>
+            <?php //echo $this->partial('blocks/global/ad_header.phtml'); ?>
+    	</div>
+        <!-- Header End -->
+	</div>
+</header>

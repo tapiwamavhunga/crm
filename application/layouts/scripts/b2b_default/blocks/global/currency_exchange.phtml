@@ -1,0 +1,22 @@
+<?php 
+$front_template = Zend_Registry::get('front_template'); 
+$translator = Zend_Registry::get('translator');
+?>
+
+<div class="block block-currency">
+	<div class="block-heading">
+    	<div class="symbol"><?php echo $translator->translator('block_currency_title','','', $front_template['theme_folder']); ?></div>
+	</div>
+    <div class="block-body">
+        <!-- CURRENCY CONVERTER CODE START -->
+        <div id="cc_xxDIV">
+          <div style="text-align:center; padding:10px; font-size: 11px;width:215px;">
+            <p><img src="http://tools.currenciesdirect.net/wait.gif" alt="Currency converter" /></p>
+            <p>Loading <a href="http://tools.currenciesdirect.net">currency converter</a></p>
+            <p>Please wait<br />....</p>
+           </div>
+        </div>
+        <script type="text/javascript" src="http://tools.currenciesdirect.net/cd.currency.html.js"></script>
+        <!-- CURRENCY CONVERTER CODE END -->
+    </div>
+</div>

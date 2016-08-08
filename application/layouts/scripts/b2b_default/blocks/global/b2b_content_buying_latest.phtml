@@ -1,0 +1,133 @@
+<?php
+class b2b_content_buying_latest
+{
+	protected	$_front_template;
+	protected	$_view;
+	protected	$_group_id = 1;
+	protected	$_limit = 20;
+	protected	$_order = 'added_on';
+	protected	$_dir = 'DESC';		
+	protected	$_translator;
+	protected	$_buying_leads_db;
+	protected	$_currency;
+	protected	$_preferences_db;
+	protected	$_preferences;
+	
+	public function __construct($view) 
+	{
+		$this->_front_template = Zend_Registry::get('front_template'); 
+		$this->_view =	$view;	
+		$this->_translator = Zend_Registry::get('translator');	
+		$this->_buying_leads_db = new B2b_Model_DbTable_Buying();	
+		//$global_conf = Zend_Registry::get('global_conf');
+		//$this->_currency = new Zend_Currency($global_conf['default_locale']);	
+		$this->_preferences_db = new B2b_Model_DbTable_Preferences();
+		$this->_preferences	=	$this->_preferences_db->getOptions();
+		$this->_limit = ($this->_preferences && ($this->_preferences['buying_leads_on_home'] != null)) ? $this->_preferences['buying_leads_on_home'] : $this->_limit;
+		if($this->_preferences && !empty($this->_preferences['buying_leads_home_sortby']))
+		{
+			$buying_leads_home_sortby_arr = explode('-', $this->_preferences['buying_leads_home_sortby']);
+			$this->_order = (!empty($buying_leads_home_sortby_arr[0]) && $buying_leads_home_sortby_arr[0] != '_') ? $buying_leads_home_sortby_arr[0] : $this->_order;
+			$this->_dir = (!empty($buying_leads_home_sortby_arr[1]) && $buying_leads_home_sortby_arr[1] != '_') ? $buying_leads_home_sortby_arr[1] : $this->_dir;
+		}
+	}
+	
+	public function truncate($phrase,$start_words, $max_words, $char = false, $charset = null)
+	{
+		if($char)
+		{
+			if(mb_strlen($phrase, $charset) > $length) {
+				  $dot = (strlen($phrase) > ($max_words - $start_words)) ? '...' : '';
+				  $phrase = mb_substr($phrase, $start_words, $max_words, $charset) . $dot;
+				}
+		}
+		else
+		{
+		   $phrase_array = explode(' ',$phrase);
+		   if(count($phrase_array) > $max_words && $max_words > 0)
+			  $phrase = implode(' ',array_slice($phrase_array, $start_words, $max_words)).'...';  
+		}
+	   return $phrase;
+	}
+	
+	public function class_body()
+	{
+		$search_params['filter']['filters'][0] = array('field' => 'group_id', 'operator' => 'eq', 'value' => $this->_group_id);
+        $search_params['filter']['logic'] = ($search_params['filter']['logic']) ? $search_params['filter']['logic'] : 'and';
+		$search_params['filter']['filters'][1] = array('field' => 'displayble', 'operator' => 'eq', 'value' => '1');
+		$search_params['filter']['filters'][2] = array('field' => 'status', 'operator' => 'eq', 'value' => '1');
+		$search_params['filter']['filters'][3] = array('field' => 'cpy_active', 'operator' => 'eq', 'value' => '1');
+		
+		$search_params['sort'][0]	=	 array('field' => $this->_order, 'dir' => $this->_dir);
+		
+		$sql_class	=	new B2b_Controller_Helper_BuyingSql();
+		$tableColumns = $sql_class->getB2bContentBuyingLatestList (array('dataLimit' => $this->_limit));
+		$buying_info = $this->_buying_leads_db->getListInfo ('1', $search_params, $tableColumns);	
+		if($buying_info)
+		{
+
+?>		
+        <div class="block block-featured">
+            <div class="block-heading silver"><div class="symbol"><?php echo $this->_translator->translator('block_buying_leads_latest_title','','', $this->_front_template['theme_folder']); ?></div></div>
+            <div class="block-body">
+            	<?php
+				foreach($buying_info as $buying_key => $info)
+				{	
+					$currency_arr 	= ($info['price_currency']) ? explode('-', $info['price_currency']) : array();
+					$currency_symbol 		= (!empty($currency_arr[0])) ? trim($currency_arr[0]) : '';				
+					$img_thumb_arr = explode(',', $info['others_images']);
+					$primary_file_field_format = ($this->_view->escape(
+										
+										$info['primary_file_field'])) ? $info['images_path'] .
+
+                                     '/' .
+
+                                     $this->_view->escape(
+
+                                            $info['primary_file_field']) : $info['images_path'] .
+
+                                     '/' . $img_thumb_arr[0];									 
+						
+				?>                
+                <div class="block-content">
+                	<div class="img-wrapper">
+                		<a href="<?php echo $this->_view->url(array('module' => 'B2b', 'controller' => 'details', 'action' => 'buying', 'company_title' => $this->_view->escape($info['company_title']), 'title' => $this->_view->escape($info['seo_title'])), 'Buyoffer-Details/:company_title/:title/*', true); ?>" link="<?php echo $primary_file_field_format; ?>" title="<?php echo $this->_view->escape($info['name']); ?>"><img src="<?php echo $primary_file_field_format; ?>" border="0" width="100" height="100" class="thumb" /></a>
+                 	</div>
+                    <div class="clr"></div>
+                    <span class="block-title"><a href="<?php echo $this->_view->url(array('module' => 'B2b', 'controller' => 'details', 'action' => 'buying', 'company_title' => $this->_view->escape($info['company_title']), 'title' => $this->_view->escape($info['seo_title'])), 'Buyoffer-Details/:company_title/:title/*', true); ?>" title="<?php echo $this->_view->escape($info['name']); ?>"><?php echo $this->truncate($this->_view->escape($info['name']), 0, 14, true, 'UTF-8'); ?></a></span><br />
+                    <?php echo $this->truncate($this->_view->escape($info['description']), 0, 20, true, 'UTF-8'); ?><br />
+                    
+                    <div class="rating">
+                    	<?php	
+							$total_votes = (empty($info['voter_count'])) ? 0 : ceil((($info['total_votes'] / $info['voter_count']) * 5));
+							for($i = 1; $i <= 5; $i++)
+							{
+								$star_img = ($i <= $total_votes) ? 'star-small-active.png' : 'star-small-inactive.png';
+						?>                        
+                        <img src="application/layouts/scripts/<?php echo $this->_front_template['theme_folder']; ?>/images/b2b_img/<?php echo $star_img; ?>" border="0" />
+                        <?php
+							}
+						?>
+                    </div>
+                    <br>
+                    <span class="price-previous">EUR 23573</span> &nbsp; <span class="price"><?php echo $currency_symbol. ' ' . $this->_view->numbers($this->_view->price($this->_view->escape($info['price']))); ?></span>
+                </div>
+                <?php				
+				}
+				?>                
+            </div>
+        </div>
+<?php			
+		}
+	}
+}
+try
+{
+	$b2b_content_buying_latest_class = new b2b_content_buying_latest($this);
+	$b2b_content_buying_latest_class->class_body();
+}
+catch(Exception $e)
+{
+	echo $e->getMessage();
+}	
+?>

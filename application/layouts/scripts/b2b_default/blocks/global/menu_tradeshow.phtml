@@ -1,0 +1,103 @@
+<?php 
+class menu_tradeshow
+{
+	protected	$_front_template;
+	protected	$_view;
+	protected	$_group_id = 1;
+	protected	$_limit = 4;
+	protected	$_order = 'id';
+	protected	$_dir = 'DESC';	
+	protected	$_translator;
+	protected	$_success_story_db;
+	protected	$_currency;
+	protected	$_preferences_db;
+	protected	$_preferences;
+	
+	
+	public function __construct($view) 
+	{
+		$this->_front_template = Zend_Registry::get('front_template'); 
+		$this->_view =	$view;	
+		$this->_translator = Zend_Registry::get('translator');	
+		$this->_trade_show_db = new B2b_Model_DbTable_Tradeshow();	
+		$this->_preferences_db = new B2b_Model_DbTable_Preferences();
+		$this->_preferences	=	$this->_preferences_db->getOptions();
+		$this->_limit = ($this->_preferences && !empty($this->_preferences['trade_show_on_home'])) ? $this->_preferences['trade_show_on_home'] : $this->_limit;	
+		if($this->_preferences && !empty($this->_preferences['trade_show_home_sortby']))
+		{
+			$trade_show_home_sortby_arr = explode('-', $this->_preferences['trade_show_home_sortby']);
+			$this->_order = (!empty($trade_show_home_sortby_arr[0]) && $trade_show_home_sortby_arr[0] != '_') ? (($trade_show_home_sortby_arr[0] == 'deal') ? $this->_deal_operator.'_num' : $trade_show_home_sortby_arr[0]) : $this->_order;
+			$this->_dir = (!empty($trade_show_home_sortby_arr[1]) && $trade_show_home_sortby_arr[1] != '_') ? $trade_show_home_sortby_arr[1] : $this->_dir;
+		}
+	}
+	
+	public function truncate($phrase,$start_words, $max_words, $char = false, $charset = null)
+	{
+		if($char)
+		{
+			if(mb_strlen($phrase, $charset) > $length) {
+				  $dot = (strlen($phrase) > ($max_words - $start_words)) ? '...' : '';
+				  $phrase = mb_substr($phrase, $start_words, $max_words, $charset) . $dot;
+				}
+		}
+		else
+		{
+		   $phrase_array = explode(' ',$phrase);
+		   if(count($phrase_array) > $max_words && $max_words > 0)
+			  $phrase = implode(' ',array_slice($phrase_array, $start_words, $max_words)).'...';  
+		}
+	   return $phrase;
+	}
+	
+	public function class_body()
+	{
+		$search_params['filter']['logic'] = ($search_params['filter']['logic']) ? $search_params['filter']['logic'] : 'and';
+		$search_params['filter']['filters'][0] = array('field' => 'status', 'operator' => 'eq', 'value' => '1');
+		$search_params['filter']['filters'][1] = array('field' => 'active', 'operator' => 'eq', 'value' => '1');
+		$search_params['filter']['filters'][2] = array('field' => 'displayable', 'operator' => 'eq', 'value' => '1');
+		
+		$search_params['sort'][0]	=	 array('field' => $this->_order, 'dir' => $this->_dir);	
+							
+		$tableColumns =  array(
+										'b2b_tradeshow' 	=> 	array('ts.*'),
+										'user_profile' 	=> 	array( 'username' => 'usr.username', 'firstName' => 'usr.firstName', 'lastName' => 'usr.lastName', 'title' => 'usr.title', 'full_name' => "CONCAT(usr.title, ' ', usr.firstName, ' ', usr.lastName)" ),
+										'userChecking' 			=> 	false,
+										'dataLimit' 			=> $this->_limit
+									);
+						
+		$trade_show_info = $this->_trade_show_db->getListInfo ('1', $search_params, $tableColumns);						
+		if($trade_show_info)
+		{					
+?>
+		<div class="block block-list">
+            <div class="block-heading">
+                <div class="symbol"><?php echo $this->_translator->translator('block_trade_show_title','','', $this->_front_template['theme_folder']); ?></div>
+            </div>
+            <div class="block-body">
+                <ul> 
+                	<?php
+						foreach($trade_show_info as $trade_show_info_key => $info)
+						{
+					?>       	
+                    <li><a href="TradeShow-Details/<?php echo $this->_view->escape($info['seo_title']); ?>"><?php echo $this->_view->escape($info['name']); ?></a></li>
+                    <?php
+						}
+						?>
+                    <li class="last-child"><a href="Trade-Shows"><?php echo $this->_translator->translator('block_suppliers_more','','', $this->_front_template['theme_folder']); ?></a> </li>
+                </ul>
+            </div>
+        </div>
+<?php
+		}
+	}
+}
+try
+{
+	$menu_tradeshow_class = new menu_tradeshow($this);
+	$menu_tradeshow_class->class_body();
+}
+catch(Exception $e)
+{
+	echo $e->getMessage();
+}
+?>

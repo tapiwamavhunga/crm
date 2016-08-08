@@ -1,0 +1,102 @@
+<?php 
+class trading_stats
+{
+	protected	$_front_template;
+	protected	$_view;
+	protected	$_group_id = 1;
+	protected	$_limit = 4;
+	protected	$_order = 'added_on';
+	protected	$_dir = 'DESC';	
+	protected	$_translator;
+	protected	$_product_db;
+	protected	$_selling_leads_db;
+	protected	$_buying_leads_db;
+	protected	$_company_profile_db;
+	protected	$_currency;
+	protected	$_preferences_db;
+	protected	$_preferences;
+	
+	
+	public function __construct($view) 
+	{
+		$this->_front_template = Zend_Registry::get('front_template'); 
+		$this->_view =	$view;	
+		$this->_translator = Zend_Registry::get('translator');	
+		$this->_product_db = new B2b_Model_DbTable_Products();	
+		$this->_selling_leads_db = new B2b_Model_DbTable_Selling();		
+		$this->_buying_leads_db = new B2b_Model_DbTable_Buying();
+		$this->_company_profile_db = new B2b_Model_DbTable_CompanyProfile();	
+	}
+	
+	public function truncate($phrase,$start_words, $max_words, $char = false, $charset = null)
+	{
+		if($char)
+		{
+			if(mb_strlen($phrase, $charset) > $length) {
+				  $dot = (strlen($phrase) > ($max_words - $start_words)) ? '...' : '';
+				  $phrase = mb_substr($phrase, $start_words, $max_words, $charset) . $dot;
+				}
+		}
+		else
+		{
+		   $phrase_array = explode(' ',$phrase);
+		   if(count($phrase_array) > $max_words && $max_words > 0)
+			  $phrase = implode(' ',array_slice($phrase_array, $start_words, $max_words)).'...';  
+		}
+	   return $phrase;
+	}
+	
+	public function class_body()
+	{
+		$search_params = null;
+							
+		$productTableColumns =  array('b2b_products' => array('product_num' => 'COUNT(pro.id)'),'b2b_company_profile' => array( 'company_name' => 'cpy.company_name'),'user_profile' => array('status' => 'usr.status'), 'where' => array('usr.status = ?' => '1', 'pro.displayble = ?' => '1', 'cpy.active = ?' => '1'), 'userChecking' => false);
+		$product_info = $this->_product_db->getListInfo ('1', $search_params, $productTableColumns);	
+		$product_num = ($product_info && $product_info[0]) ? $product_info[0]['product_num'] : 0;
+		$product_num = $this->_view->numbers(number_format($product_num));	
+		
+		$sellingLeadsTableColumns =  array('b2b_selling_leads' => array('selling_leads_num' => 'COUNT(sel.id)'),'b2b_company_profile' => array( 'company_name' => 'cpy.company_name'),'user_profile' => array('status' => 'usr.status'), 'where' => array(
+                'usr.status = ?' => '1',
+                'sel.displayble = ?' => '1',
+                'cpy.active = ?' => '1'
+            ), 'userChecking' => false);
+		$selling_leads_info = $this->_selling_leads_db->getListInfo ('1', $search_params, $sellingLeadsTableColumns);	
+		$selling_leads_num = ($selling_leads_info && $selling_leads_info[0]) ? $selling_leads_info[0]['selling_leads_num'] : 0;
+		$selling_leads_num = $this->_view->numbers(number_format($selling_leads_num));		
+		
+		$buyingLeadsTableColumns =  array('b2b_buying_leads' => array('buying_leads_num' => 'COUNT(buy.id)'),'b2b_company_profile' => array( 'company_name' => 'cpy.company_name'),'user_profile' => array('status' => 'usr.status'), 'where' => array('usr.status = ?' => '1',
+                        'buy.displayble = ?' => '1', 'cpy.active = ?' => '1'), 'userChecking' => false);
+		$buying_leads_info = $this->_buying_leads_db->getListInfo ('1', $search_params, $buyingLeadsTableColumns);	
+		$buying_leads_num = ($buying_leads_info && $buying_leads_info[0]) ? $buying_leads_info[0]['buying_leads_num'] : 0;
+		$buying_leads_num = $this->_view->numbers(number_format($buying_leads_num));
+		
+		$companyTableColumns =  array('b2b_company_profile' => array('company_num' => 'COUNT(cpy.id)'), 'userChecking' => false);
+		$company_info = $this->_company_profile_db->getListInfo ('1', $search_params, $companyTableColumns);	
+		$company_num = ($company_info && $company_info[0]) ? $company_info[0]['company_num'] : 0;
+		$company_num = $this->_view->numbers(number_format($company_num));						
+?>
+		<div class="block block-list">
+            <div class="block-heading"><div class="symbol"><?php echo $this->_translator->translator('block_stats_title','','', $this->_front_template['theme_folder']); ?></div></div>
+            <div class="block-body">
+                <ul>
+                    <li><a href="All-b2b-Product-list"><?php echo $this->_translator->translator('block_stats_products','','', $this->_front_template['theme_folder']); ?> (<?php echo $product_num; ?>)</a></li>
+                    <li><a href="All-Selling-list"><?php echo $this->_translator->translator('block_stats_selling','','', $this->_front_template['theme_folder']); ?> (<?php echo $selling_leads_num; ?>)</a></li>
+                    <li><a href="All-Buying-List"><?php echo $this->_translator->translator('block_stats_buying','','', $this->_front_template['theme_folder']); ?> (<?php echo $buying_leads_num; ?>)</a></li>
+                    <li class="last-child"><a href="All-Company-List"><?php echo $this->_translator->translator('block_stats_company','','', $this->_front_template['theme_folder']); ?> (<?php echo $company_num; ?>)</a></li>
+                </ul>
+            </div>
+        </div>
+<?php
+		
+	}
+}
+try
+{
+	$trading_stats_class = new trading_stats($this);
+	$trading_stats_class->class_body();
+}
+catch(Exception $e)
+{
+	echo $e->getMessage();
+}
+?>

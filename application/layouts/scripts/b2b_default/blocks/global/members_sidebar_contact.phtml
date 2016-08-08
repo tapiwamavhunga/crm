@@ -1,0 +1,104 @@
+<?php 
+$front_template = Zend_Registry::get('front_template'); 
+$translator = Zend_Registry::get('translator');
+$helper_path = $this->getHelpers();
+$doc_view = $helper_path[Doctype]->view;
+$translator = Zend_Registry::get('translator');
+$imageDir = $doc_view->companyDetails['images_path'];
+$avatar_img = ($doc_view->companyDetails['avatar_img']) ? ($doc_view->companyDetails['avatar_img']) : 'avatar.png';
+
+?>
+
+<div class="block block-contact-info">
+	<div class="block-heading">
+    	<div class="symbol"><?php echo $translator->translator('block_contact_title','','', $front_template['theme_folder']); ?></div>
+	</div>
+    <div class="block-body">
+
+		<?php  
+        	if ($doc_view->companyDetails['payment_type'] || $doc_view->companyDetails['language']){						
+        ?>  
+
+   		<div class="info">
+        	<div class="title"><?php  echo  $translator->translator('b2b_front_company_profile_overview')?> : </div> 
+    	
+            <p><?php echo ($doc_view->companyDetails['category_name']) ? '<strong> '. $translator->translator('b2b_front_company_profile_category')  .'</strong>  :  ' . $doc_view->companyDetails['category_name']  : '' ?> </p>
+            <p><?php echo ($doc_view->companyDetails['language']) ? '<strong> ' .$translator->translator('b2b_front_company_profile_language')  .'</strong>  :  ' . str_replace (',' ,', ' ,$doc_view->companyDetails['language']) : '' ?> </p>
+        </div>
+        
+		<?php  
+			}
+        	if ($doc_view->companyDetails['business_type'] || $doc_view->companyDetails['registered_on'] ){						
+         ?>  
+   
+        <div class="info">
+        	<div class="title"><?php  echo  $translator->translator('b2b_front_company_profile_biztype')?> : </div>  
+    		<p> <?php echo ($doc_view->companyDetails['business_type']) ? '<strong> ' .$translator->translator('b2b_front_company_profile_scope')  .'</strong>  :  ' . implode (", ",$doc_view->companyDetails['business_type']) : '' ?>  </p>
+            <p><?php echo ($doc_view->companyDetails['registered_on']) ? '<strong> ' .$translator->translator('b2b_front_company_profile_registered')  .'</strong>  :  ' . $doc_view->companyDetails['registered_on']  : '' ?> </p>
+        </div>
+
+		<?php  
+			}
+        	if ($doc_view->companyDetails['full_name']){						
+         ?>  
+            
+
+        <div class="info">
+    		<div class="title"><?php  echo  $translator->translator('b2b_front_company_profile_name')?></div>
+            <p>
+            <img src="<?php echo $imageDir .'/'. $avatar_img; ?>" border="0" width="85" class="avatar"/>
+            <strong> <?php echo $doc_view->companyDetails['full_name'] ?> </strong><br />
+			<?php
+			$trade_type = $doc_view->companyDetails['trade_type'] ;	
+			if  ($trade_type) :  
+			?>
+            
+                <br /> <span> (<?php if ($trade_type == '1') { echo  $translator->translator('b2b_keywords_buyers') ;} elseif ($trade_type == '2') { echo  $translator->translator('b2b_keywords_sellers');} elseif ($trade_type == '3') { echo  $translator->translator('b2b_keywords_both');}?>) <br /> </span>
+
+            <?php  
+				endif ;
+			?> 
+            </p>
+		</div>
+
+		<?php  
+			}				
+         ?>  
+        <div class="info">
+        	<div class="title"><?php  echo  $translator->translator('b2b_front_company_profile_country_orgin')?> : </div> 
+    		<p> 
+            	<img src="data/adminImages/flagsImage/<?php echo $doc_view->companyDetails['country_code'] ?>.gif" border="0" alt="<?php echo $doc_view->companyDetails['country_name'] ?>" /> &nbsp; (<?php echo $doc_view->companyDetails['state'].' , '. $doc_view->companyDetails['city']?> )<br />
+			</p>
+        </div>
+       
+		<?php
+			$phone = $doc_view->companyDetails['phone'] ;	
+			$company_street = $doc_view->companyDetails['company_street'] ;	
+			$company_city = $doc_view->companyDetails['company_city'] ;
+			$company_country_code = $doc_view->companyDetails['company_country_code'] ;
+			?>
+				<div class="info">
+        		<div class="title"> <?php  echo  $translator->translator('b2b_front_company_profile_contact_info')?> :</div> 
+                	<p>
+                    	 <?php if  ($company_street) : ?>
+                    	<div>
+							<strong><?php  echo  $translator->translator('b2b_front_company_profile_street')?> : </strong>
+                            <?php  echo ($company_street ) ? $company_street : ''?> 
+                        </div>
+                        
+                        <?php  endif ; 
+						 if  ($company_city || $company_country_code) : ?>
+                         
+                        <div>
+                        	<strong><?php  echo  $translator->translator('b2b_front_company_profile_country')?> : </strong>
+							<?php  echo ($company_country_code ) ? "<img src='data/adminImages/flagsImage/".$company_country_code .".gif' border='0'  alt='" . $doc_view->companyDetails['company_country_name'] . "'/>" : ''?>
+                            <?php  echo ($company_city ) ? '(' . $company_city .')': ''?>                         
+                        </div>
+                        
+                         <?php  endif ;  ?> 
+                     </p>
+        		</div>
+
+       
+    </div>
+</div>

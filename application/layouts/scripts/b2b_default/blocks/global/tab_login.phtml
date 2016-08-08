@@ -1,0 +1,14 @@
+<?php 
+$front_template = Zend_Registry::get('front_template'); 
+$translator = Zend_Registry::get('translator');
+$global_conf = Zend_Registry::get('global_conf');
+?>
+
+<div class="block block-tab-login">
+	<div class="block-content">
+		<span class="block-title"><?php echo $translator->translator('block_login_welcome',$global_conf['site_name'],'', $front_template['theme_folder']); ?></span>
+        <p><?php echo $translator->translator('block_login_text',$global_conf['site_name'],'', $front_template['theme_folder']); ?></p>
+    	<a href="Registration/104" class="join"><?php echo $translator->translator('block_login_btn','','', $front_template['theme_folder']); ?></a><br />
+       	<?php echo $translator->translator('block_login_member','','', $front_template['theme_folder']); ?> <a href="Frontend-Login"><?php echo $translator->translator('block_login_signin','','', $front_template['theme_folder']); ?></a>
+	</div>
+</div>

@@ -1,0 +1,21 @@
+<?php 
+$front_template = Zend_Registry::get('front_template'); 
+$translator = Zend_Registry::get('translator');
+?>
+
+<div class="block block-posting-stats">
+	<div class="block-heading"><div class="symbol"><?php echo $translator->translator('block_posting_stats_title','','', $front_template['theme_folder']); ?></div></div>
+    <div class="block-body">
+		<p><a href="#">Products</a></p><span>0 / 10</span>
+        <hr/>
+        <p><a href="#">Sell Offers</a></p><span>0 / 20</span>
+        <hr/>
+        <p><a href="#">Trade Alerts</a></p><span>0 / 20</span>
+        <hr/>
+        <p><a href="#">Profile</a></p><span>0%</span>
+        <hr/>
+        <p><a href="#">Account</a></p><span>100%</span>
+        <hr/>
+        <p><a href="#">Reviews</a></p><span>100</span>
+    </div>
+</div>

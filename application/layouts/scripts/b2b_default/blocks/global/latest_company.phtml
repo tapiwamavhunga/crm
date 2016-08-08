@@ -1,0 +1,93 @@
+<?php 
+class latest_company
+{
+	protected	$_front_template;
+	protected	$_view;
+	protected	$_group_id = 1;
+	protected	$_limit = 12;
+	protected	$_order = 'added_on';
+	protected	$_dir = 'DESC';		
+	protected	$_translator;
+	protected	$_company_profile_db;
+	protected	$_currency;
+	protected	$_preferences_db;
+	protected	$_preferences;
+	
+	public function __construct($view) 
+	{
+		$this->_front_template = Zend_Registry::get('front_template'); 
+		$this->_view =	$view;	
+		$this->_translator = Zend_Registry::get('translator');	
+		$this->_company_profile_db = new B2b_Model_DbTable_CompanyProfile();	
+		$this->_preferences_db = new B2b_Model_DbTable_Preferences();
+		$this->_preferences	=	$this->_preferences_db->getOptions();
+		$this->_limit = ($this->_preferences && !empty($this->_preferences['suppliers_on_home'])) ? $this->_preferences['suppliers_on_home'] : $this->_limit;
+		
+	}
+	
+	public function truncate($phrase,$start_words, $max_words, $char = false, $charset = null)
+	{
+		if($char)
+		{
+			if(mb_strlen($phrase, $charset) > $length) {
+				  $dot = (strlen($phrase) > ($max_words - $start_words)) ? '...' : '';
+				  $phrase = mb_substr($phrase, $start_words, $max_words, $charset) . $dot;
+				}
+		}
+		else
+		{
+		   $phrase_array = explode(' ',$phrase);
+		   if(count($phrase_array) > $max_words && $max_words > 0)
+			  $phrase = implode(' ',array_slice($phrase_array, $start_words, $max_words)).'...';  
+		}
+	   return $phrase;
+	}
+	
+	public function class_body()
+	{
+		$search_params['filter']['logic'] = ($search_params['filter']['logic']) ? $search_params['filter']['logic'] : 'and';
+		//$search_params['filter']['filters'][0] = array('field' => 'displayble', 'operator' => 'eq', 'value' => '1');
+		$search_params['filter']['filters'][1] = array('field' => 'active', 'operator' => 'eq', 'value' => '1');
+		$search_params['filter']['filters'][2] = array('field' => 'status', 'operator' => 'eq', 'value' => '1');
+		
+		$search_params['sort'][0]	=	array('field' => $this->_order, 'dir' => $this->_dir);
+		
+		$sql_class	=	new B2b_Controller_Helper_CompanySql();
+		$tableColumns = $sql_class->getB2bPremiumCompanyProfileList (array('dataLimit' => $this->_limit));
+		$company_profile_info = $this->_company_profile_db->getListInfo ('1', $search_params, $tableColumns);	
+		if($company_profile_info)
+		{			
+?>		
+        <div class="block block-list">
+            <div class="block-heading">
+                <div class="symbol"><?php echo $this->_translator->translator('block_company_title','','', $this->_front_template['theme_folder']); ?></div>
+            </div>
+            <div class="block-body">
+                <ul>
+                	<?php
+                    foreach($company_profile_info as $company_profile_info_key => $info)
+					{
+                    ?>
+                    <li><a href="<?php echo $this->_view->url(array('module' => 'B2b', 'controller' => 'company', 'action' => 'home', 'company_title'  => $this->_view->escape($info['company_title'])), 'Company-Homepage/:company_title/*', true); ?>"><?php echo $this->_view->escape($info['company_name']); ?></a></li>
+                    <?php
+					}
+					?>
+                    <li class="last-child"><a href="All-Company-List"><?php echo $this->_translator->translator('block_suppliers_more','','', $this->_front_template['theme_folder']); ?></a> </li>
+                </ul>
+            </div>
+        </div>
+		
+<?php			
+		}
+	}
+}
+try
+{
+	$latest_company_class = new latest_company($this);
+	$latest_company_class->class_body();
+}
+catch(Exception $e)
+{
+	echo $e->getMessage();
+}
+?>

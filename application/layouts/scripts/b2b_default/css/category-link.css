@@ -1,0 +1,129 @@
+#breadcrumb, #breadcrumb2 { float: left; display: block; overflow:hidden; margin-bottom:5px; }
+#breadcrumb ul, #breadcrumb2 ul { list-style: none; margin-left:7px; padding-left:6px; }
+
+.crumbs { display: block; }
+.crumbs li {  display: inline; }
+.crumbs li.first { padding-left: 8px; }
+.crumbs li a, .crumbs li a:link, .crumbs li a:visited /*,
+
+.crumbs li*/{ /* li For Form Setps */
+	color:#005EBB;
+	display: block;
+	float: left;
+	font-size: 12px;
+	margin-left: -13px;
+	padding: 7px 17px 11px 25px;
+	position: relative;
+	text-decoration: none;
+}
+/*.crumbs li,*/ /* li For Form Setps */
+.crumbs li a { background-image: url('../images/b2b_img/bg-crumbs.png');  background-repeat: no-repeat; background-position: 100% 0; position: relative; }
+
+.crumbs li a:hover {
+	color: #E15A00;
+	background-position: 100% -48px;
+	cursor: pointer;
+}
+
+.crumbs li a:active { color: #333; background-position: 100% -96px; }
+.crumbs li.first span,
+.crumbs li.first a span { height: 29px; width: 3px; border-left: 1px solid #d9d9d9; position: absolute; top: 0px; left: 0px; }
+
+
+.crumbs li.last a{ font-weight:bold; color:#333; }
+
+.crumbs li a span.count{
+	font-weight:normal;
+	font-size:13px;
+	padding-left:px;
+	color:#F00;
+}
+
+.crumbs2 { display: block; margin-left: -13px; padding: 0; }
+.crumbs2 li { display: inline; }
+.crumbs2 li a, .crumbs2 li a:link, .crumbs2 li a:visited { color: #666; display: block; float: left; font-size: 12px; padding: 7px 16px 7px 19px; position: relative; text-decoration: none; border: 1px solid #d9d9d9; border-right-width: 0px; }
+
+.crumbs2 li a  { 
+	background-image: -webkit-gradient(linear,left bottom,left top,color-stop(0.45, rgb(241,241,241)),color-stop(0.73, rgb(245,245,245)));
+
+	background-image: -moz-linear-gradient( center bottom, rgb(241,241,241) 45%, rgb(245,245,245) 73%);
+	/* For Internet Explorer 5.5 - 7 */
+	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr=#f1f1f1, endColorstr=#f5f5f5);
+	/* For Internet Explorer 8 */
+	-ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr=#f1f1f1, endColorstr=#f5f5f5)";
+}
+
+.crumbs2 li.first a { border-top-left-radius: 5px; -moz-border-radius-topleft: 5px; -webkit-border-top-left-radius: 5px; }
+.crumbs2 li.last a { border-right-width: 1px; border-bottom-right-radius: 5px; -moz-border-radius-bottomright: 5px; -webkit-border-bottom-right-radius: 5px; }
+
+.crumbs2 li a:hover { 
+	border-top-color: #c4c4c4;
+	border-bottom-color: #c4c4c4;
+	
+	background-image: -webkit-gradient(linear,left bottom,left top,color-stop(0.45, rgb(241,241,241)),color-stop(0.73, rgb(248,248,248)));
+	background-image: -moz-linear-gradient( center bottom, rgb(241,241,241) 45%, rgb(248,248,248) 73%);
+	/* For Internet Explorer 5.5 - 7 */
+	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr=#f8f8f8, endColorstr=#f1f1f1);
+	/* For Internet Explorer 8 */
+	-ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr=#f8f8f8, endColorstr=#f1f1f1)";
+	
+	color: #333;
+	
+	-moz-box-shadow: 0px 2px 2px #e8e8e8;
+	-webkit-box-shadow: 0px 2px 2px #e8e8e8;
+	box-shadow: 0px 2px 2px #e8e8e8;
+}
+
+.crumbs2 li a:active {
+	border-top-color: #c4c4c4;
+	border-bottom-color: #c4c4c4;
+	
+	background-image: -webkit-gradient(linear,left bottom,left top,color-stop(0.45, rgb(224,224,224)),color-stop(0.73, rgb(235,235,235)));
+	background-image: -moz-linear-gradient( center bottom, rgb(224,224,224) 45%, rgb(235,235,235) 73%);
+	/* For Internet Explorer 5.5 - 7 */
+	filter: progid:DXImageTransform.Microsoft.gradient(startColorstr=#ebebeb, endColorstr=#e0e0e0);
+	/* For Internet Explorer 8 */
+	-ms-filter: "progid:DXImageTransform.Microsoft.gradient(startColorstr=#ebebeb, endColorstr=#e0e0e0)";
+	
+	color: #333; 
+	
+	box-shadow: -1px 1px 1px 0px #dadada inset;
+	-webkit-box-shadow: -1px 1px 1px 0px #dadada inset;
+	-moz-box-shadow: -1px 1px 1px 0px #dadada inset;
+}
+
+/* CSS Settings for Form Steps */
+
+.form-element .crumbs li{
+	color:#999;
+	display: block;
+	float: left;
+	font-size: 12px;
+	font-weight:bold;
+	margin-left: -13px;
+	padding: 7px 17px 11px 25px;
+	position: relative;
+	text-decoration: none;
+}
+
+.form-element .crumbs li { background-image: url('../images/b2b_img/bg-crumbs.png');  background-repeat: no-repeat; background-position: 100% 0; position: relative; }
+
+.form-element .crumbs li.active { color: #333; background-position: 100% -144px; color:#FFF;}
+
+.form-element .crumbs li.active span{
+	border-left:1px solid #0140A6;
+}
+
+.form-element .crumbs li div{
+	background-color:#B5B5B5;
+	padding:1px 5px;
+	margin:-1px 5px 0 -9px;
+	color:#FFF;
+	display:inline-block;
+	border-radius:100px;
+}
+
+.form-element .crumbs li.active div{
+	background-color: #FFF;
+	color:#F60;
+}

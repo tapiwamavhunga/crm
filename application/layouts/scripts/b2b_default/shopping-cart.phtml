@@ -1,0 +1,141 @@
+<?php
+$tab_base_link = Zend_Controller_Front::getInstance()->getRequest()->getRequestUri();
+$front_template = Zend_Registry::get('front_template');
+$global_conf = Zend_Registry::get('global_conf');
+$locale_arr = explode('_', $global_conf['default_locale']);
+echo $this->headScript()->setFile($this->baseUrl().'/vendor/scripts/kendo/js/cultures/kendo.culture.'.$locale_arr[0].'.min.js', '');
+echo $this->headScript()->setFile($this->baseUrl().'/vendor/scripts/kendo/js/cultures/kendo.culture.'.implode('-', $locale_arr).'.min.js', '');
+$sessionData = (Eicra_Global_Variable::getSession()->cart_result) ? Eicra_Global_Variable::getSession()->cart_result : array();
+$this->translator = ($this->translator) ? $this->translator : Zend_Registry::get('translator');
+?>
+<script>
+   var sessionData = <?php echo Zend_Json_Encoder::encode($sessionData); ?>;
+   var cartUrl = "<?php echo $this->url( array('module' => 'Ecommerce','controller' => 'cart', 'action' => 'booking' ), 'adminrout',    true) ?>"; 	
+   var cart_culture = "<?php echo implode('-', $locale_arr); ?>";	
+</script>
+<?php
+echo $this->headScript()->setFile($this->baseUrl().'/application/modules/Ecommerce/js/cart.js', '');	
+echo $this->headLink()->setStylesheet($this->baseUrl().'/application/layouts/scripts/'.$front_template['theme_folder'].'/css/ShoppingCart/cart.css');
+?>
+<div id="application"></div>
+		
+            
+       
+        <script type="text/x-kendo-template" id="layout-template">
+            <div id="wrapper">	
+				<div id="cart_window">
+					  <div id="checkout-content"></div>
+				  </div>		        
+				<div id="slide-in-share">
+						<a id="slide-in-handle" href="#"><?php echo $this->translator->translator('front_shopping_cart_button_label', '', '', $front_template['theme_folder']); ?><span><span data-bind="text: cart.contentsCount"></span> <?php echo $this->translator->translator('front_shopping_cart_item_label', '', '', $front_template['theme_folder']); ?></span></a>
+						<section id="pre-content"></section>
+						<p data-bind="visible: cart.cleared"> <?php echo $this->translator->translator('front_shopping_cart_clear_msg', '', '', $front_template['theme_folder']); ?></p>
+				</div>	
+            </div>
+			<div id="cart-msg"></div>
+        </script>
+        <script type="text/x-kendo-template" id="cart-preview-template">
+            <div id="shop-info" data-bind="attr: { class: cartContentsClass }">
+				<div id="add-list">
+                	<ul data-role="listview" data-bind="source: cart.contents" data-template="cart-item" id="shop-list"></ul>
+				</div>
+                <div id="shopping-cart">
+                    <h3><?php echo $this->translator->translator('front_shopping_cart_header_label', '', '', $front_template['theme_folder']); ?></h3>
+                    <p class="total-price" data-bind="html: totalPrice"></p>
+                    <a id="empty-cart" href="javascript:void(0);" data-bind="click: emptyCart"><?php echo $this->translator->translator('front_shopping_cart_empty_label', '', '', $front_template['theme_folder']); ?></a><a id="checkout" href="<?php echo $tab_base_link; ?>#/checkout"><?php echo $this->translator->translator('front_shopping_cart_checkout_label', '', '', $front_template['theme_folder']); ?></a>
+                </div>
+            </div>
+        </script>
+
+        <!--<script type="text/x-kendo-template" id="index-template">
+            <ul data-role="listview" data-bind="source: items" data-template="item" id="main"></ul>
+        </script>-->
+
+        <script type="text/x-kendo-template" id="checkout-template">
+			<div id="details-checkout">
+				<h1><?php echo $this->translator->translator('front_shopping_cart_list_header_label', '', '', $front_template['theme_folder']); ?></h1>
+				<a href="<?php echo $tab_base_link; ?>#" class="close"></a>
+				<div id="table-div">
+					<table>
+						<thead>
+							<tr>
+								<th><?php echo $this->translator->translator('front_shopping_cart_list_item_label', '', '', $front_template['theme_folder']); ?></th>
+								<th><?php echo $this->translator->translator('front_shopping_cart_list_quantity_label', '', '', $front_template['theme_folder']); ?></th>
+								<th><?php echo $this->translator->translator('front_shopping_cart_list_price_label', '', '', $front_template['theme_folder']); ?></th>
+							</tr>
+						</thead>
+						<tbody data-role="listview" data-bind="source: cart.contents" data-template="large-cart-item">
+						</tbody>
+					</table>
+				</div>
+				<p id="total-checkout"><em><?php echo $this->translator->translator('front_shopping_cart_list_total_label', '', '', $front_template['theme_folder']); ?></em><span data-bind="text: totalPrice"></span></p>
+				<a class="cancel-order" href="<?php echo $tab_base_link; ?>#" data-bind="click: emptyCart"><?php echo $this->translator->translator('front_shopping_cart_button_cancel_label', '', '', $front_template['theme_folder']); ?></a><button class="order-now" data-bind="click: proceed"><?php echo $this->translator->translator('front_shopping_cart_button_order_label', '', '', $front_template['theme_folder']); ?></button>
+			</div>			
+        </script>
+
+        <script type="text/x-kendo-template" id="detail-template">
+
+			<div id="details-top-image">
+				<a class="close" href="#"></a>
+			</div>
+
+			<div id="details">
+                <a data-bind="attr: {href: previousHref }" id="navigate-prev"></a><div
+				id="detail-info"><img class="main-image"
+				data-bind="attr: { src: imgUrl }" alt="Selected Product" title="Selected Product"/><div
+				id="description">
+						<h1 data-bind="text: current.name"></h1>
+						<p data-bind="text: current.description"></p>
+						<div id="details-total">
+							<p id="price-quantity" data-bind="text: price"></p>
+							<button class="buy" data-bind="click: addToCart">Add to cart</button>
+						</div>
+					</div>
+				</div><div id="nutrition-info"><h2>Nutritional Information</h2>
+						<dl>
+						  <dt>Protein</dt>
+							<dd data-bind="text: current.stats.protein"></dd>
+						  <dt>Fat (total)</dt>
+							<dd data-bind="text: current.stats.fat"></dd>
+						  <dt>Carbohydrate</dt>
+							<dd data-bind="text: current.stats.fat"></dd>
+							  <dt>Energy (kJ)</dt>
+							<dd data-bind="text: current.stats.energy"></dd>
+						  <dt>Energy (kcal)</dt>
+							<dd data-bind="text: kCal"></dd>
+							  <dt>Sugar</dt>
+							<dd data-bind="text: current.stats.sugar"></dd>
+						</dl>
+				</div><a data-bind="attr: { href: nextHref }" id="navigate-next"></a>
+			</div>
+
+            <div id="details-bottom-image"></div>
+        </script>
+
+        <script type="text/x-kendo-template" id="large-cart-item">
+            <tr>
+                <td> <div class="cart-image-wrapper"><img src="#= item.primary_file_field_format #" /></div> <span class="product-name" data-bind="text: item.name"></span></td>
+                <td><input type="text" data-role="numerictextbox" data-min="0" data-max="100" data-bind="value: quantity"></td>
+                <td><span class=""><a  data-bind="click: removeFromCart" class="remove" title="<?php echo $this->translator->translator('front_shopping_cart_remove_label', '', '', $front_template['theme_folder']); ?>"></a></span> <p class="table-price" data-bind="text: itemPrice"><p></td>
+            </tr>
+        </script>
+
+        <script type="text/x-kendo-template" id="cart-item">
+            <li class="selected-products-list">
+                <a data-bind="click: removeFromCart" class="view-selected-items">
+				<img  width="100" height="100" src="#= item.primary_file_field_format #" alt="#= item.name #" title="#= item.name #"  /></a>
+                <span class="selected-image-price"><span data-bind="text: quantity"></span>x<span data-bind="text: itemPrice"></span></span>
+            </li>
+        </script>
+
+        <script type="text/x-kendo-template" id="item">
+            <li class="products">
+                <a class="view-details" href="\#/menu/#: id #">
+                    <img class="main-image" src="#= window.contentPath #/images/200/#= image #"  alt="#: name#" title="#: name #" />
+                    <strong data-bind="text: name"></strong>
+                    <span class="price"><span>$</span><span data-bind="text: price"></span></span>
+                </a>
+
+                <button class="add-to-cart" data-bind="click: addToCart"><?php echo $this->translator->translator('front_shopping_cart_button_add_label', '', '', $front_template['theme_folder']); ?></button>
+            </li>
+        </script>

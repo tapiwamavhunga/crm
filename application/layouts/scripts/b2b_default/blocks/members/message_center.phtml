@@ -1,0 +1,18 @@
+<?php 
+$front_template = Zend_Registry::get('front_template'); 
+$translator = Zend_Registry::get('translator');
+?>
+
+<div class="block block-dashboard-box">
+	<div class="block-heading">
+    	<div class="symbol"><?php echo $translator->translator('Message Center','','', $front_template['theme_folder']); ?></div>
+	</div>
+    <div class="block-body">
+    	<ul>
+			<li><a href="#"><div>Unread Messages In Inbox</div> <span>10</span></a></li>
+        	<li><a href="#"><div>Unread Messages In Spam</div> <span>200</span></a></li>
+        	<li><a href="#"><div>You Saved Contact List Members</div> <span>20</span></a></li>
+		</ul>
+        <div class="bottom"><a href="#">Read Unread Messages</a></div>
+    </div>
+</div>

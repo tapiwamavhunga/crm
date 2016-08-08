@@ -1,0 +1,16 @@
+<?php 
+$front_template = Zend_Registry::get('front_template'); 
+$translator = Zend_Registry::get('translator');
+?>
+
+<div class="block block-dashboard-box customer-service">
+	<div class="block-heading">
+    	<div class="symbol"><?php echo $translator->translator('block_customer_services_title','','', $front_template['theme_folder']); ?></div>
+	</div>
+    <div class="block-body">
+     	<div class="clear title">Get in touch with your Account Manager!</div>
+		<div class="icon support">Customer Service Assistant</div>
+		<div class="icon cellphone">+92-21-111-111-539</div>
+   		<div class="icon email"><a href="#">support@support.com</a></div>
+	</div>
+</div>
